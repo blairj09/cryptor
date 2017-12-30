@@ -314,14 +314,3 @@ get_social <- function(id) {
 
 
 }
-
-
-# Social data playground
-social_content$Data
-
-# How are repositories selected?
-social_content$Data$CodeRepository$List %>%
-  map_chr("last_update") %>%
-  as.numeric() %>%
-  order()
-
