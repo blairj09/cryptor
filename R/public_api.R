@@ -134,7 +134,7 @@ get_price <- function(fsyms,
   # Parse response into tibble with requested coins as rows and requested prices as columns
   query_cont %>%
     purrr::map_df(as_tibble) %>%
-    dplyr::mutate(coin = names(price_content)) %>%
+    dplyr::mutate(coin = names(query_cont)) %>%
     dplyr::select(coin,
                   dplyr::everything())
 }
