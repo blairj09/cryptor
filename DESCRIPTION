@@ -1,11 +1,14 @@
 Package: cryptor
 Type: Package
-Title: What the Package Does (Title Case)
+Title: An R wrapper for the cryptocompare API.
 Version: 0.1.0
-Author: Who wrote it
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Author: James Blair
+Maintainer: James Blair <james.m.blair@icloud.com>
+Description: A thin R wrapper for getting crytocurrency data from the API
+    provided by cryptocompare.com. Specific details regarding the API can be
+    found at <https://www.cryptocompare.com/api>.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/blairj09/cryptor
+BugReports: https://github.com/blairj09/cryptor/issues
