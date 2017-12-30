@@ -1,0 +1,26 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+# cryptor
+
+Cryptor provides a basic wrapper around the public API provided by [CryptoCompare](https://www.cryptocompare.com). CryptoCompare has provided a very comprehsive API for cryptocurrency data and this package does its best to provide an acecssible R interface to the API.
+
+## Installation
+
+You can install cryptor from github with:
+
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("blairj09/cryptor")
+```
