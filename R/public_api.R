@@ -86,17 +86,15 @@ get_coins <- function() {
 #'
 #' @references https://www.cryptocompare.com/api#-api-data-price-
 #'
-#' @param fsyms character vector containing the 3 letter name(s) for coins to
-#' retreive price details for.
-#' @param tsyms character vector containing the 3 letter name(s) for how price
-#' should be reported for \code{fsyms}.
-#' @param exchange character vector of length 1 indicating which exchange should
-#' be queried for pricing data.
+#' @param fsyms character. 3 letter name(s) for coins to retreive price details for.
+#' @param tsyms character. 3 letter name(s) for how price should be reported for
+#' \code{fsyms}.
+#' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
 #' @param sign logical. Should the server sign the response? Defaults to FALSE
-#' @param app_name character. Name of app to be passed in API request. Defaults
-#' to NULL.
 #' @param try_conversion logical. Should conversion be used if exact comparison
 #' isn't available? Defaults to TRUE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
 #'
 #' @return A tibble containing price details about selected coin(s).
 #' @examples
@@ -113,8 +111,8 @@ get_price <- function(fsyms,
                       tsyms,
                       exchange = "CCCAGG",
                       sign = FALSE,
-                      app_name = NULL,
-                      try_conversion = TRUE) {
+                      try_conversion = TRUE,
+                      app_name = NULL) {
   base_url <- "https://min-api.cryptocompare.com/data/pricemulti"
 
   # Build url based on function parameters
@@ -150,6 +148,9 @@ get_price <- function(fsyms,
 #' @references https://www.cryptocompare.com/api#-api-data-price-
 #'
 #' @inheritParams get_price
+#'
+#' @return A tibble containing comprehensive price details for \code{fsyms} in
+#' terms of \code{tsyms}.
 #'
 #' @examples
 #' \dontrun{
@@ -196,17 +197,53 @@ get_price_details <- function(fsyms,
   price_tbl
 }
 
-get_day_price <- function(fsym,
-                          tsym,
-                          time_from,
-                          time_to,
-                          exchange = "CCCAGG",
-                          aggregate = 1,
-                          limit = 100,
-                          all_data = FALSE,
-                          sign = FALSE,
-                          app_name = NULL,
-                          try_conversion = TRUE) {
+#' Get historical daily price data
+#'
+#' \code{get_daily_price} provides price information about a single currency
+#' at the daily level.
+#'
+#' @references https://www.cryptocompare.com/api#-api-data-histoday-
+#'
+#' @param fsym character. 3 letter name for coin to retreive price history for.
+#' @param tsyms character. 3 letter name for how price should be reported for
+#' \code{fsym}.
+#' @param end_time character. Final date to retrieve data for in the format of yyyy-mm-dd
+#' with optional hh:mm (used when unit is set to hour).
+#' @param unit character. Either 'day' or 'hour' indicating the granularity of
+#' the returned data. The default is 'day'.
+#' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
+#' @param aggregate numeric. Data is reported every n days. Defaults to 1. Maximum
+#' value of 30.
+#' @param limit numeric. Number of records to retrive leading up to \code{end_date}.
+#' If \code{all_data} is set to true, this is ignored. Defaults to 30 when \code{unit}
+#' is 'day' and 168 when \code{unit} is 'hour'. Minimum of 1, maximum of 2000.
+#' @param all_data logical. SHould all historical data for \code{fsym} be retreived?
+#' Defaults to FALSE.
+#' @param sign logical. Should the server sign the response? Defaults to FALS
+#' @param try_conversion logical. Should conversion be used if exact comparison
+#' isn't available? Defaults to TRUE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing daily price details for \code{fsym}
+#'
+#' @examples
+#' \dontrun{
+#' get_daily_price("BTC", "USD", "2017-10-31")
+#' }
+#'
+#' @export
+get_historical_price <- function(fsym,
+                                 tsym,
+                                 end_time,
+                                 unit = "day",
+                                 exchange = "CCCAGG",
+                                 aggregate = 1,
+                                 limit = NULL,
+                                 all_data = FALSE,
+                                 sign = FALSE,
+                                 try_conversion = TRUE,
+                                 app_name = NULL) {
   # Check parameters
   if (length(fsym) > 1 | class(fsym) != "character") {
     stop("fsym must be character vector of length 1.")
@@ -216,15 +253,30 @@ get_day_price <- function(fsym,
     stop("tsym must be character vector of length 1.")
   }
 
-  # https://min-api.cryptocompare.com/data/histoday?fsym=ETH&tsym=BTC&limit=60&aggregate=1&toTs=1452680400&extraParams=your_app_name
-  base_url <- "https://min-api.cryptocompare.com/data/histoday"
+  if (!is.numeric(aggregate) | aggregate < 1 | aggregate > 30) {
+    stop("aggregate must be an integer between 1 and 30")
+  }
 
-  # Parse dates into proper numeric format
-  p_ts <- as.POSIXct(to_ts) %>%
+  # Set limit based on unit
+  if (is.null(limit)) {
+    limit <- ifelse(unit == "day", 30, 168)
+  } else if (!is.numeric(limit) | limit < 1 | limit > 2000) {
+    stop("limit must be an integer between 1 and 2000")
+  }
+
+  if (!unit %in% c("day", "hour")) {
+    stop("unit must be either 'day' or 'hour'." )
+  }
+
+  # https://min-api.cryptocompare.com/data/histoday?fsym=ETH&tsym=BTC&limit=60&aggregate=1&toTs=1452680400&extraParams=your_app_name
+  base_url <- glue::glue("https://min-api.cryptocompare.com/data/histo{unit}")
+
+  # Parse end_date into proper numeric format
+  p_end_time <- as.POSIXct(end_time) %>%
     as.numeric()
 
   # Build query
-  query_url <- glue::glue("{base_url}?fsym={fsym}&tsym={tsym}&e={exchange}&limit={limit}&aggregate={aggregate}&allData={tolower(all_data)}&sign={tolower(sign)}&toTs={p_ts}")
+  query_url <- glue::glue("{base_url}?fsym={fsym}&tsym={tsym}&e={exchange}&limit={limit}&aggregate={aggregate}&allData={tolower(all_data)}&sign={tolower(sign)}&toTs={p_end_time}")
 
   # Add app_name if it is included
   if (!is.null(app_name)) {
@@ -239,37 +291,14 @@ get_day_price <- function(fsym,
 
   # Get contents of response
   query_cont <- httr::content(query_resp)
+
+  # Return parsed tibble
+  query_cont$Data %>%
+    purrr::map_df(tibble::as_tibble) %>%
+    dplyr::mutate(time = as.Date(as.POSIXct(time, origin = "1970-01-01"))) %>%
+    dplyr::rename(date = time)
 }
 
-
-
-#' Get price data at a specific timestamp (hour).
-get_hour_price <- function(fsym,
-                           tsym,
-                           to_ts,
-                           exchange = "CCCAGG",
-                           aggregate = 1,
-                           limit = 100,
-                           sign = FALSE,
-                           app_name = NULL,
-                           try_conversion = TRUE) {
-  # Check parameters
-  if (length(fsym) > 1 | class(fsym) != "character") {
-    stop("fsym must be character vector of length 1.")
-  }
-
-  if (length(tsym) > 1 | class(tsym) != "character") {
-    stop("tsym must be character vector of length 1.")
-  }
-
-
-
-  # https://min-api.cryptocompare.com/data/histohour?fsym=BTC&tsym=USD&limit=60&aggregate=3&e=CCCAGG
-  base_url <- "https://min-api.cryptocompare.com/data/histohour"
-
-  # Build query URL
-  query_url <- glue::glue("{base_url}?fsym={fsym}&tsym={tsym}&")
-}
 
 get_social <- function(id) {
   # https://www.cryptocompare.com/api/data/socialstats/?id=1182
@@ -277,11 +306,11 @@ get_social <- function(id) {
 
   query_url <- glue::glue("{base_url}?id={id}")
 
-  social_list <- httr::GET(query_url)
+  query_resp <- httr::GET(query_url)
 
-  api_errs(social_list)
+  api_errs(query_resp)
 
-  social_content <- httr::content(social_list)
+  query_cont <- httr::content(query_resp)
 
 
 }
