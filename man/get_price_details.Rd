@@ -28,9 +28,19 @@ A tibble containing comprehensive price details for \code{fsyms} in
 terms of \code{tsyms}.
 }
 \description{
-\code{get_price_details} is Like code{\link{get_price}} but provides a more
+\code{get_price_details} is Like \code{\link{get_price}} but provides a more
 thorough summary of price data by including details like 24 volume and highs
 and lows.
+}
+\examples{
+\dontrun{
+# Get BTC price details in USD
+get_price_details("BTC", "USD")
+
+# Get BTC and ETH price details in USD and EUR
+get_price_details(c("BTC", "ETH"), c("USD", "EUR"))
+
+}
 }
 \references{
 https://www.cryptocompare.com/api#-api-data-price-

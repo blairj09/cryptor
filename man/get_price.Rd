@@ -30,6 +30,16 @@ A tibble containing price details about selected coin(s).
 \code{get_price} provides price information about selected coins in terms
 of other coins.
 }
+\examples{
+\dontrun{
+# Get BTC price in USD
+get_price("BTC", "USD")
+
+# Get BTC and ETH price in USD and EUR
+get_price(c("BTC", "ETH"), c("USD", "EUR"))
+}
+
+}
 \references{
 https://www.cryptocompare.com/api#-api-data-price-
 }

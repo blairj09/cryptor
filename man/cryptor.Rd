@@ -4,7 +4,7 @@
 \name{cryptor}
 \alias{cryptor}
 \alias{cryptor-package}
-\title{cryptor: An R wrapper for the \url{https://www.cryptocompare.com} API.}
+\title{cryptor: An R wrapper for the \href{https://www.cryptocompare.com}{CryptoCompare} API.}
 \description{
 This package provides access to the crypto currency API documented at
 \url{https://www.cryptocompare.com/api}. The API is currently public and can
@@ -14,5 +14,17 @@ call \href{https://min-api.cryptocompare.com/stats/rate/hour/limit}{hourly} and
 }
 \section{Functions}{
 
+\itemize{
+  \item \code{\link{get_api_limit}} - Get API calls made and remaining against
+    current limits
+  \item \code{\link{get_coins}} - List all available coins
+  \item \code{\link{get_price}} - Get price for a currency or group of currencies
+  \item \code{\link{get_price_details}} - Get price with additional details
+    for a currency or group of currencies
+  \item \code{\link{get_historical_price}} - Get price for a currency from a
+    specifc date / timestamp
+  \item \code{\link{get_social}} - Get comprehensive social data for a given
+    currency
+}
 }
 
