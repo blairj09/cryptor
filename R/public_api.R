@@ -74,7 +74,7 @@ get_coins <- function() {
   # Convert to data.frame to replace N/A with NA
   coin_df <- as.data.frame(coin_tbl)
   coin_df[coin_df == "N/A"] <- NA
-  coin_tbl <- as_tibble(coin_df)
+  coin_tbl <- tibble::as_tibble(coin_df)
 
   coin_tbl
 }
@@ -103,7 +103,7 @@ get_coins <- function() {
 #' get_price("BTC", "USD")
 #'
 #' # Get BTC and ETH price in USD and EUR
-#' get_price(c("BTC", "ETH"), c("USD", "EUR))
+#' get_price(c("BTC", "ETH"), c("USD", "EUR"))
 #' }
 #'
 #' @export
@@ -133,7 +133,7 @@ get_price <- function(fsyms,
 
   # Parse response into tibble with requested coins as rows and requested prices as columns
   query_cont %>%
-    purrr::map_df(as_tibble) %>%
+    purrr::map_df(tibble::as_tibble) %>%
     dplyr::mutate(coin = names(query_cont)) %>%
     dplyr::select(coin,
                   dplyr::everything())
@@ -141,7 +141,7 @@ get_price <- function(fsyms,
 
 #' Get full price details for one or more coin(s)
 #'
-#' \code{get_price_details} is Like code{\link{get_price}} but provides a more
+#' \code{get_price_details} is Like \code{\link{get_price}} but provides a more
 #' thorough summary of price data by including details like 24 volume and highs
 #' and lows.
 #'
@@ -158,7 +158,7 @@ get_price <- function(fsyms,
 #' get_price_details("BTC", "USD")
 #'
 #' # Get BTC and ETH price details in USD and EUR
-#' get_price_details(c("BTC", "ETH"), c("USD", "EUR))
+#' get_price_details(c("BTC", "ETH"), c("USD", "EUR"))
 #'
 #' }
 #' @export
@@ -274,6 +274,10 @@ get_historical_price <- function(fsym,
   # Parse end_date into proper numeric format
   p_end_time <- as.POSIXct(end_time) %>%
     as.numeric()
+
+  if (unit == "hour") {
+    p_end_time <- p_end_time * 1000
+  }
 
   # Build query
   query_url <- glue::glue("{base_url}?fsym={fsym}&tsym={tsym}&e={exchange}&limit={limit}&aggregate={aggregate}&allData={tolower(all_data)}&sign={tolower(sign)}&toTs={p_end_time}")
