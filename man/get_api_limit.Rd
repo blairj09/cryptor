@@ -2,7 +2,7 @@
 % Please edit documentation in R/public_api.R
 \name{get_api_limit}
 \alias{get_api_limit}
-\title{Get number of API calls used in last hour or last second.}
+\title{Get number of API calls used and remaining in last hour or last second.}
 \usage{
 get_api_limit(time = "hour")
 }
@@ -10,12 +10,12 @@ get_api_limit(time = "hour")
 \item{time}{character. Either "hour" or "second". Defaults to "hour".}
 }
 \value{
-A list of two tibbles detailing calls made and calls remaining against
-the API limit
+A single tibble with two rows - one for calls made and one for calls
+remaining
 }
 \description{
-\code{get_api_limit} returns a list of two tibbles detailing API calls made
-and API calls remaining against second and hour rate limits.
+\code{get_api_limit} returns a tibble detailing API calls made and API calls
+remaining against second and hour rate limits.
 }
 \examples{
 \dontrun{
@@ -27,5 +27,5 @@ get_api_limit(time = "second")
 }
 }
 \references{
-https://www.cryptocompare.com/api#requests
+\url{https://www.cryptocompare.com/api#requests}
 }
