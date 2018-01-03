@@ -19,3 +19,17 @@ api_errs <- function(api_return) {
     }
   }
 }
+
+get_response_content <- function(api_response) {
+  httr::content(api_response,
+                type = "text",
+                encoding = "UTF-8") %>%
+    jsonlite::fromJSON()
+}
+
+response_to_tibble <- function(parsed_response) {
+  parsed_response %>%
+    purrr::map_df(tibble::as_tibble) %>%
+    purrr::map_df(readr::parse_guess,
+                  na = c("", "NA", "N/A"))
+}

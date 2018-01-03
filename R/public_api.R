@@ -1,14 +1,19 @@
-#' Get number of API calls used in last hour or last second.
+# TODO: Separate out different endpoints into their own functions
+# TODO: Update glue calls to httr::modify_url
+# TODO: Update content to return text, then parse manually
+# TODO: Parse JSON into proper R classes
+
+#' Get number of API calls used and remaining in last hour or last second.
 #'
-#' \code{get_api_limit} returns a list of two tibbles detailing API calls made
-#' and API calls remaining against second and hour rate limits.
+#' \code{get_api_limit} returns a tibble detailing API calls made and API calls
+#' remaining against second and hour rate limits.
 #'
-#' @references https://www.cryptocompare.com/api#requests
+#' @references \url{https://www.cryptocompare.com/api#requests}
 #'
 #' @param time character. Either "hour" or "second". Defaults to "hour".
 #'
-#' @return A list of two tibbles detailing calls made and calls remaining against
-#' the API limit
+#' @return A single tibble with two rows - one for calls made and one for calls
+#' remaining
 #'
 #' @examples
 #' \dontrun{
@@ -33,14 +38,16 @@ get_api_limit <- function(time = "hour") {
   # Check for errors from API call
   api_errs(query_resp)
 
-  query_cont <- httr::content(query_resp)
+  # Extract and parse JSON from response
+  query_cont <- get_response_content(query_resp)
 
-  query_tbls <- query_cont[-1] %>%
-    purrr::map(tibble::as_tibble)
+  # Parse JSON from response into tibbles
+  query_tbl <- query_cont[-1] %>%
+    response_to_tibble() %>%
+    dplyr::mutate(call_metric = c("calls_made", "calls_left")) %>%
+    dplyr::select(call_metric, dplyr::everything())
 
-  names(query_tbls) <- glue::glue("{time}_{names(query_tbls)}")
-
-  query_tbls
+  query_tbl
 }
 
 #' List all available coins
@@ -66,15 +73,12 @@ get_coins <- function() {
   # Check for errors
   api_errs(query_resp)
 
-  # Parse data into tibble
-  coin_tbl <- httr::content(query_resp) %>%
-    purrr::pluck("Data") %>%
-    purrr::map_df(tibble::as_tibble)
+  # Get content of result as text
+  query_cont <- get_response_content(query_resp)
 
-  # Convert to data.frame to replace N/A with NA
-  coin_df <- as.data.frame(coin_tbl)
-  coin_df[coin_df == "N/A"] <- NA
-  coin_tbl <- tibble::as_tibble(coin_df)
+  # Parse data into tibble
+  coin_tbl <- query_cont$Data %>%
+    response_to_tibble()
 
   coin_tbl
 }
@@ -115,12 +119,21 @@ get_price <- function(fsyms,
                       app_name = NULL) {
   base_url <- "https://min-api.cryptocompare.com/data/pricemulti"
 
-  # Build url based on function parameters
-  query_url <- glue::glue("{base_url}?fsyms={glue::collapse(fsyms, sep = ',')}&tsyms={glue::collapse(tsyms, sep = ',')}&e={exchange}&sign={tolower(sign)}&tryConversion={tolower(try_conversion)}")
+  query_url <- httr::modify_url(base_url,
+                                query = list(
+                                  fsyms = glue::collapse(fsyms, sep = ","),
+                                  tsyms = glue::collapse(tsyms, sep = ","),
+                                  e = exchange,
+                                  sign = tolower(sign),
+                                  tryConversion = try_conversion
+                                ))
 
   # If app_name is provided, append it to the url
   if (!is.null(app_name)) {
-    query_url <- glue::glue("{query_url}&extraParams={app_name}")
+    query_url <- httr::modify_url(query_url,
+                                  query = list(
+                                    extraParams = app_name
+                                  ))
   }
 
   query_resp <- httr::GET(query_url)
@@ -129,11 +142,11 @@ get_price <- function(fsyms,
   api_errs(query_resp)
 
   # Get content from request
-  query_cont <- httr::content(query_resp)
+  query_cont <- get_response_content(query_resp)
 
   # Parse response into tibble with requested coins as rows and requested prices as columns
   query_cont %>%
-    purrr::map_df(tibble::as_tibble) %>%
+    response_to_tibble() %>%
     dplyr::mutate(coin = names(query_cont)) %>%
     dplyr::select(coin,
                   dplyr::everything())
@@ -170,12 +183,21 @@ get_price_details <- function(fsyms,
                               try_conversion = TRUE) {
   base_url <- "https://min-api.cryptocompare.com/data/pricemultifull"
 
-  # Build url based on function parameters
-  query_url <- glue::glue("{base_url}?fsyms={glue::collapse(fsyms, sep = ',')}&tsyms={glue::collapse(tsyms, sep = ',')}&e={exchange}&sign={tolower(sign)}")
+  query_url <- httr::modify_url(base_url,
+                                query = list(
+                                  fsyms = glue::collapse(fsyms, sep = ","),
+                                  tsyms = glue::collapse(tsyms, sep = ","),
+                                  e = exchange,
+                                  sign = tolower(sign),
+                                  tryConversion = try_conversion
+                                ))
 
   # If app_name is provided, append it to the url
   if (!is.null(app_name)) {
-    query_url <- glue::glue("{query_url}&extraParams={app_name}")
+    query_url <- httr::modify_url(query_url,
+                                  query = list(
+                                    extraParams = app_name
+                                  ))
   }
 
   query_resp <- httr::GET(query_url)
@@ -183,7 +205,7 @@ get_price_details <- function(fsyms,
   # Check for errors
   api_errs(query_resp)
 
-  query_cont <- httr::content(query_resp)
+  query_cont <- get_response_content(query_resp)
 
   price_tbl <- query_cont %>%
     purrr::pluck("RAW") %>%
@@ -192,10 +214,14 @@ get_price_details <- function(fsyms,
       tibble::as_tibble
     ) %>%
     purrr::flatten() %>%
-    Reduce(rbind, .)
+    Reduce(rbind, .) %>%
+    purrr::map_df(readr::parse_guess,
+                  na = c("", "NA", "N/A"))
 
   price_tbl
 }
+
+# TODO: Figure out how to properly parse dates
 
 #' Get historical daily price data
 #'
@@ -303,6 +329,19 @@ get_historical_price <- function(fsym,
     dplyr::rename(date = time)
 }
 
+# TODO: build out snapshot function
+
+get_snapshot <- function(id) {
+  query_url <- glue::glue("https://www.cryptocompare.com/api/data/coinsnapshotfullbyid/?id={id}")
+
+  query_resp <- httr::GET(query_url)
+
+  api_errs(query_resp)
+
+  query_cont <- httr::content(query_resp)
+}
+
+# TODO: figure out how to best organize social data
 
 get_social <- function(id) {
   # https://www.cryptocompare.com/api/data/socialstats/?id=1182
