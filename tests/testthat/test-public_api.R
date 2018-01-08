@@ -6,9 +6,8 @@ get_coins_result <- get_coins()
 
 test_that("get_api_limit works", {
   api_limit_result <- get_api_limit()
-  expect_equal(class(api_limit_result), "list")
-  expect_equal(length(api_limit_result), 2)
-  expect_equal(class(api_limit_result[[1]]), c("tbl_df", "tbl", "data.frame"))
+  expect_equal(class(api_limit_result), c("tbl_df", "tbl", "data.frame"))
+  expect_equal(dim(api_limit_result), c(2, 4))
   expect_error(get_api_limit("min"))
 })
 
