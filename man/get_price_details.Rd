@@ -20,8 +20,8 @@ get_price_details(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
 \item{app_name}{character. Name of app to be passed in API request. Defaults
 to NULL.}
 
-\item{try_conversion}{logical. Should conversion be used if exact comparison
-isn't available? Defaults to TRUE.}
+\item{try_conversion}{logical. Should BTC conversion be used fsym is not trading
+in tsym on specified exchange? Defaults to TRUE.}
 }
 \value{
 A tibble containing comprehensive price details for \code{fsyms} in

@@ -17,8 +17,8 @@ get_price(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
 
 \item{sign}{logical. Should the server sign the response? Defaults to FALSE}
 
-\item{try_conversion}{logical. Should conversion be used if exact comparison
-isn't available? Defaults to TRUE.}
+\item{try_conversion}{logical. Should BTC conversion be used fsym is not trading
+in tsym on specified exchange? Defaults to TRUE.}
 
 \item{app_name}{character. Name of app to be passed in API request. Defaults
 to NULL.}

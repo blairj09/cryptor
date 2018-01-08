@@ -4,47 +4,50 @@
 \alias{get_historical_price}
 \title{Get historical daily price data}
 \usage{
-get_historical_price(fsym, tsym, end_time, unit = "day",
+get_historical_price(fsym, tsym, end_time = Sys.Date(), unit = "day",
   exchange = "CCCAGG", aggregate = 1, limit = NULL, all_data = FALSE,
   sign = FALSE, try_conversion = TRUE, app_name = NULL)
 }
 \arguments{
 \item{fsym}{character. 3 letter name for coin to retreive price history for.}
 
-\item{end_time}{character. Final date to retrieve data for in the format of yyyy-mm-dd
-with optional hh:mm (used when unit is set to hour).}
+\item{tsym}{character. 3 letter name for how price should be reported for
+\code{fsym}.}
 
-\item{unit}{character. Either 'day' or 'hour' indicating the granularity of
-the returned data. The default is 'day'.}
+\item{end_time}{character. Final date to retrieve data for in the format of yyyy-mm-dd
+with optional hh:mm:ss (used when unit is set to "hour" or "minute"). Defaults to
+\code{Sys.Date()}.}
+
+\item{unit}{character. Either "day", "hour", or "minute" indicating the granularity of
+the returned data. The default is 'day'. \strong{Note:} minute data is only available
+for the past 7 days.}
 
 \item{exchange}{character. Exchange to query. Defaults to 'CCCAGG'.}
 
-\item{aggregate}{numeric. Data is reported every n days. Defaults to 1. Maximum
+\item{aggregate}{numeric. Data is reported every n units. Defaults to 1. Maximum
 value of 30.}
 
 \item{limit}{numeric. Number of records to retrive leading up to \code{end_date}.
 If \code{all_data} is set to true, this is ignored. Defaults to 30 when \code{unit}
-is 'day' and 168 when \code{unit} is 'hour'. Minimum of 1, maximum of 2000.}
+is "day", 168 when \code{unit} is "hour", and 1440 when \code{unit} is "minute".
+Minimum of 1, maximum of 2000.}
 
 \item{all_data}{logical. SHould all historical data for \code{fsym} be retreived?
 Defaults to FALSE.}
 
-\item{sign}{logical. Should the server sign the response? Defaults to FALS}
+\item{sign}{logical. Should the server sign the response? Defaults to FALSE}
 
-\item{try_conversion}{logical. Should conversion be used if exact comparison
-isn't available? Defaults to TRUE.}
+\item{try_conversion}{logical. Should BTC conversion be used fsym is not trading
+in tsym on specified exchange? Defaults to TRUE.}
 
 \item{app_name}{character. Name of app to be passed in API request. Defaults
 to NULL.}
-
-\item{tsyms}{character. 3 letter name for how price should be reported for
-\code{fsym}.}
 }
 \value{
 A tibble containing daily price details for \code{fsym}
 }
 \description{
-\code{get_daily_price} provides price information about a single currency
+\code{get_historical_price} provides price information about a single currency
 at the daily level.
 }
 \examples{
@@ -54,5 +57,5 @@ get_daily_price("BTC", "USD", "2017-10-31")
 
 }
 \references{
-https://www.cryptocompare.com/api#-api-data-histoday-
+\url{https://www.cryptocompare.com/api#-api-data-histoday-}
 }

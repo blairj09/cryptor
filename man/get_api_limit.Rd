@@ -7,7 +7,7 @@
 get_api_limit(time = "hour")
 }
 \arguments{
-\item{time}{character. Either "hour" or "second". Defaults to "hour".}
+\item{time}{character. Either "hour", "minute", or "second". Defaults to "hour".}
 }
 \value{
 A single tibble with two rows - one for calls made and one for calls
@@ -15,7 +15,7 @@ remaining
 }
 \description{
 \code{get_api_limit} returns a tibble detailing API calls made and API calls
-remaining against second and hour rate limits.
+remaining against established rate limits.
 }
 \examples{
 \dontrun{
