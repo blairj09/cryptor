@@ -1,4 +1,4 @@
-#' Get number of API calls used and remaining in last hour or last second.
+#' Total API calls used and remaining.
 #'
 #' \code{get_api_limit} returns a tibble detailing API calls made and API calls
 #' remaining against established rate limits.
@@ -8,7 +8,7 @@
 #' @param time character. Either "hour", "minute", or "second". Defaults to "hour".
 #'
 #' @return A single tibble with two rows - one for calls made and one for calls
-#' remaining
+#'   remaining.
 #'
 #' @examples
 #' \dontrun{
@@ -20,14 +20,11 @@
 #' }
 #' @export
 get_api_limit <- function(time = "hour") {
-
   # Check parameters
-  if (!time %in% c("hour", "minute", "second")) {
-    stop("time must be either 'hour', 'minute', or 'second'.",
-         call. = FALSE)
-  }
+  check_params(time = time)
 
-  query_url <- glue::glue("https://min-api.cryptocompare.com/stats/rate/{time}/limit")
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = glue::glue("stats/rate/{time}/limit"))
 
   query_resp  <- httr::GET(query_url)
 
@@ -37,23 +34,23 @@ get_api_limit <- function(time = "hour") {
   # Extract and parse JSON from response
   query_cont <- get_response_content(query_resp)
 
-  # Parse JSON from response into tibbles
-  query_tbl <- query_cont[-1] %>%
+  # Parse JSON from response into tibble
+  limit_tbl <- query_cont[-1] %>%
     response_to_tibble() %>%
     dplyr::mutate(call_metric = c("calls_made", "calls_left")) %>%
     dplyr::select(call_metric, dplyr::everything())
 
-  query_tbl
+  limit_tbl
 }
 
-#' List all available coins
+#' List all available coins.
 #'
 #' \code{get_coins} provides general information about all coins available through
-#' the API.
+#' the CryptoCompare API.
 #'
-#' @references https://www.cryptocompare.com/api#-api-data-coinlist-
+#' @references \url{https://www.cryptocompare.com/api#-api-data-coinlist-}
 #'
-#' @return A tibble containing details for each coin available through the API
+#' @return A tibble containing details for each coin available through the API.
 #'
 #' @examples
 #' \dontrun{
@@ -62,7 +59,8 @@ get_api_limit <- function(time = "hour") {
 #' }
 #' @export
 get_coins <- function() {
-  query_url <- "https://www.cryptocompare.com/api/data/coinlist"
+  query_url <- httr::modify_url(API_URL,
+                                path = "api/data/coinlist")
 
   query_resp <- httr::GET(query_url)
 
@@ -79,24 +77,25 @@ get_coins <- function() {
   coin_tbl
 }
 
-#' Get price data for one or more coin(s)
+#' Get price data for one or more coin(s).
 #'
 #' \code{get_price} provides price information about selected coins in terms
 #' of other coins.
 #'
-#' @references https://www.cryptocompare.com/api#-api-data-price-
+#' @references \url{https://www.cryptocompare.com/api#-api-data-price-}
 #'
 #' @param fsyms character. 3 letter name(s) for coins to retreive price details for.
 #' @param tsyms character. 3 letter name(s) for how price should be reported for
-#' \code{fsyms}.
+#'   \code{fsyms}.
 #' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
-#' @param sign logical. Should the server sign the response? Defaults to FALSE
-#' @param try_conversion logical. Should BTC conversion be used fsym is not trading
-#' in tsym on specified exchange? Defaults to TRUE.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE.
+#' @param try_conversion logical. Should BTC conversion be used if \code{fsym}
+#'   is not trading in \code{tsym} on specified exchange? Defaults to TRUE.
 #' @param app_name character. Name of app to be passed in API request. Defaults
-#' to NULL.
+#'   to NULL.
 #'
 #' @return A tibble containing price details about selected coin(s).
+#'
 #' @examples
 #' \dontrun{
 #' # Get BTC price in USD
@@ -113,9 +112,18 @@ get_price <- function(fsyms,
                       sign = FALSE,
                       try_conversion = TRUE,
                       app_name = NULL) {
-  base_url <- "https://min-api.cryptocompare.com/data/pricemulti"
+  check_params(fsyms = fsyms,
+               tsyms = tsyms,
+               exchange = exchange,
+               sign = sign,
+               try_conversion = try_conversion,
+               app_name = app_name)
 
-  query_url <- httr::modify_url(base_url,
+  # Ensure fsyms and tsyms are upper case
+  fsyms <- toupper(fsyms)
+  tsyms <- toupper(tsyms)
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/pricemulti",
                                 query = list(
                                   fsyms = glue::collapse(fsyms, sep = ","),
                                   tsyms = glue::collapse(tsyms, sep = ","),
@@ -141,14 +149,24 @@ get_price <- function(fsyms,
   query_cont <- get_response_content(query_resp)
 
   # Parse response into tibble with requested coins as rows and requested prices as columns
-  query_cont %>%
-    response_to_tibble() %>%
-    dplyr::mutate(coin = names(query_cont)) %>%
-    dplyr::select(coin,
-                  dplyr::everything())
+  price_tbl <- query_cont %>%
+    tibble::as_tibble() %>%
+    tidyr::unnest() %>%
+    dplyr::mutate(tosymbol = tsyms) %>%
+    tidyr::gather(
+      key = fromsymbol,
+      value = price,
+      -tosymbol
+    ) %>%
+    dplyr::select(
+      fromsymbol,
+      dplyr::everything()
+    )
+
+  price_tbl
 }
 
-#' Get full price details for one or more coin(s)
+#' Get full price details for one or more coin(s).
 #'
 #' \code{get_price_details} is Like \code{\link{get_price}} but provides a more
 #' thorough summary of price data by including details like 24 volume and highs
@@ -168,18 +186,23 @@ get_price <- function(fsyms,
 #'
 #' # Get BTC and ETH price details in USD and EUR
 #' get_price_details(c("BTC", "ETH"), c("USD", "EUR"))
-#'
 #' }
+#'
 #' @export
 get_price_details <- function(fsyms,
                               tsyms,
                               exchange = "CCCAGG",
                               sign = FALSE,
-                              app_name = NULL,
-                              try_conversion = TRUE) {
-  base_url <- "https://min-api.cryptocompare.com/data/pricemultifull"
-
-  query_url <- httr::modify_url(base_url,
+                              try_conversion = TRUE,
+                              app_name = NULL) {
+  check_params(fsyms = fsyms,
+               tsyms = tsyms,
+               exchange = exchange,
+               sign = sign,
+               try_conversion = try_conversion,
+               app_name = app_name)
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/pricemultifull",
                                 query = list(
                                   fsyms = glue::collapse(fsyms, sep = ","),
                                   tsyms = glue::collapse(tsyms, sep = ","),
@@ -212,7 +235,8 @@ get_price_details <- function(fsyms,
     purrr::flatten() %>%
     Reduce(rbind, .) %>%
     purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A"))
+                  na = c("", "NA", "N/A")) %>%
+    janitor::clean_names(case = "snake")
 
   price_tbl
 }
@@ -229,7 +253,7 @@ get_price_details <- function(fsyms,
 #' \code{fsym}.
 #' @param end_time character. Final date to retrieve data for in the format of yyyy-mm-dd
 #' with optional hh:mm:ss (used when unit is set to "hour" or "minute"). Defaults to
-#' \code{Sys.Date()}.
+#' \code{Sys.time()}.
 #' @param unit character. Either "day", "hour", or "minute" indicating the granularity of
 #' the returned data. The default is 'day'. \strong{Note:} minute data is only available
 #' for the past 7 days.
@@ -258,7 +282,7 @@ get_price_details <- function(fsyms,
 #' @export
 get_historical_price <- function(fsym,
                                  tsym,
-                                 end_time = Sys.Date(),
+                                 end_time = Sys.time(),
                                  unit = "day",
                                  exchange = "CCCAGG",
                                  aggregate = 1,
@@ -267,45 +291,32 @@ get_historical_price <- function(fsym,
                                  sign = FALSE,
                                  try_conversion = TRUE,
                                  app_name = NULL) {
-  # Check parameters
-  if (length(fsym) > 1 | class(fsym) != "character") {
-    stop("fsym must be character vector of length 1.",
-         call. = FALSE)
-  }
-
-  if (length(tsym) > 1 | class(tsym) != "character") {
-    stop("tsym must be character vector of length 1.",
-         call. = FALSE)
-  }
-
-  if (!is.numeric(aggregate) | aggregate < 1 | aggregate > 30) {
-    stop("aggregate must be an integer between 1 and 30",
-         call. = FALSE)
-  }
+  check_params(fsym = fsym,
+               tsym = tsym,
+               end_time = end_time,
+               unit = unit,
+               exchange = exchange,
+               aggregate = aggregate,
+               limit = limit,
+               all_data = all_data,
+               sign = sign,
+               try_conversion = try_conversion,
+               app_name = app_name)
 
   # Set limit based on unit
   if (is.null(limit)) {
     limit <- dplyr::case_when(unit == "day" ~ 30,
                               unit == "hour" ~ 168,
                               TRUE ~ 1440)
-  } else if (!is.numeric(limit) | limit < 1 | limit > 2000) {
-    stop("limit must be an integer between 1 and 2000",
-         call. = FALSE)
   }
-
-  if (!unit %in% c("day", "hour", "minute")) {
-    stop("unit must be either 'day', 'hour', or 'minute'.",
-         call. = FALSE)
-  }
-
-  base_url <- glue::glue("https://min-api.cryptocompare.com/data/histo{unit}")
 
   # Parse end_date into proper numeric format
   p_end_time <- lubridate::as_datetime(end_time) %>%
     as.numeric()
 
   # Build query
-  query_url <- httr::modify_url(base_url,
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = glue::glue("data/histo{unit}"),
                                 query = list(
                                   fsym = fsym,
                                   tsym = tsym,
@@ -370,9 +381,11 @@ get_historical_price <- function(fsym,
 #'
 #' @export
 get_pair_snapshot <- function(fsym, tsym) {
-  base_url <- "https://www.cryptocompare.com/api/data/coinsnapshot"
+  check_params(fsym = fsym,
+               tsym = tsym)
 
-  query_url <- httr::modify_url(base_url,
+  query_url <- httr::modify_url(API_URL,
+                                path = "api/data/coinsnapshot",
                                 query = list(
                                   fsym = fsym,
                                   tsym = tsym
@@ -424,9 +437,9 @@ get_pair_snapshot <- function(fsym, tsym) {
 #'
 #' @export
 get_coin_snapshot <- function(id) {
-  base_url <- "https://www.cryptocompare.com/api/data/coinsnapshotfullbyid"
-
-  query_url <- httr::modify_url(base_url,
+  check_params(id = id)
+  query_url <- httr::modify_url(API_URL,
+                                path = "api/data/coinsnapshotfullbyid",
                                 query = list(
                                   id = id
                                 ))
@@ -458,6 +471,24 @@ get_coin_snapshot <- function(id) {
 #'
 #' @inheritParams get_coin_snapshot
 #'
+#' @return A list with the following structure:
+#' \itemize{
+#'   \item \strong{similar_items} A tibble outlining coins similar to the coin provided.
+#'   \item \strong{cryptopian_followers} A tibble containing details about followers of
+#'     the provided coin on cryptocompare.
+#'   \item \strong{page_views} A tibble outlining number of page views for the coin on
+#'     different pages.
+#'   \item \strong{crypto_compare_summary} Aggergated cryptocompare data for the given coin.
+#'   \item \strong{social_media} A list containing the following three elements:
+#'   \itemize{
+#'     \item \strong{Twitter} A tibble containing Twitter data.
+#'     \item \strong{Reddit} A tibble containing Reddit data.
+#'     \item \strong{Facebook} A tibble containing Facebook data.
+#'   }
+#'   \item \strong{repo_summary} A tibble with details about various code repositories
+#'     associated with the given coin.
+#' }
+#'
 #' @examples
 #' \dontrun{
 #' # Get bitcoin social data
@@ -466,9 +497,9 @@ get_coin_snapshot <- function(id) {
 #'
 #' @export
 get_social <- function(id) {
-  base_url <- "https://www.cryptocompare.com/api/data/socialstats"
-
-  query_url <- httr::modify_url(base_url,
+  check_params(id = id)
+  query_url <- httr::modify_url(API_URL,
+                                path = "api/socialstats",
                                 query = list(
                                   id = id
                                 ))
@@ -494,8 +525,7 @@ get_social <- function(id) {
 
   crypto_compare_summary <- crypto_compare[!purrr::map_lgl(crypto_compare, purrr::is_list)] %>%
     tibble::as_tibble() %>%
-    purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A"))
+    purrr::map_df(possibly_read)
 
   # Social media
   social_names <- c("Twitter", "Reddit", "Facebook")
@@ -503,14 +533,24 @@ get_social <- function(id) {
   social_media <- query_cont$Data[social_names] %>%
     purrr::map(
       purrr::map_df,
-      readr::parse_guess,
-      na = c("", "NA", "N/A")
+      possibly_read
     )
 
   # Repo data
-  query_cont$Data$CodeRepository$List %>%
-    purrr::map_df(possibly_read)
-
+  repo_summary <- query_cont$Data$CodeRepository$List %>%
+    # purrr::map(purrr::flatten) %>%
+    purrr::map_df(
+      purrr::map_df,
+      possibly_read
+    )
+  list(
+    similar_items = similar_items,
+    cryptopian_followers = cryptopian_followers,
+    page_views = page_views,
+    crypto_compare_summary = crypto_compare_summary,
+    social_media = social_media,
+    repo_summary = repo_summary
+  )
 }
 
 #' Get top currencies by volume for a given currency.
@@ -539,9 +579,12 @@ get_social <- function(id) {
 #'
 #' @export
 get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
-  base_url <- "https://min-api.cryptocompare.com/data/top/pairs"
+  check_params(fsym = fsym,
+               limit = limit,
+               sign = sign)
 
-  query_url <- httr::modify_url(base_url,
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/top/pairs",
                                 query = list(
                                   fsym = fsym,
                                   limit = limit,
