@@ -2,7 +2,7 @@
 % Please edit documentation in R/public_api.R
 \name{get_api_limit}
 \alias{get_api_limit}
-\title{Get number of API calls used and remaining in last hour or last second.}
+\title{Total API calls used and remaining.}
 \usage{
 get_api_limit(time = "hour")
 }

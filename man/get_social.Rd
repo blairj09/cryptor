@@ -9,6 +9,25 @@ get_social(id)
 \arguments{
 \item{id}{integer. Coin id. Can be retreived using \code{\link{get_coins}}.}
 }
+\value{
+A list with the following structure:
+\itemize{
+  \item \strong{similar_items} A tibble outlining coins similar to the coin provided.
+  \item \strong{cryptopian_followers} A tibble containing details about followers of
+    the provided coin on cryptocompare.
+  \item \strong{page_views} A tibble outlining number of page views for the coin on
+    different pages.
+  \item \strong{crypto_compare_summary} Aggergated cryptocompare data for the given coin.
+  \item \strong{social_media} A list containing the following three elements:
+  \itemize{
+    \item \strong{Twitter} A tibble containing Twitter data.
+    \item \strong{Reddit} A tibble containing Reddit data.
+    \item \strong{Facebook} A tibble containing Facebook data.
+  }
+  \item \strong{repo_summary} A tibble with details about various code repositories
+    associated with the given coin.
+}
+}
 \description{
 \code{get_social} returns a list containing several tibbles that provide
 social details for the specified coin.
