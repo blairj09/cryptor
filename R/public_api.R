@@ -36,11 +36,54 @@ get_api_limit <- function(time = "hour") {
 
   # Parse JSON from response into tibble
   limit_tbl <- query_cont[-1] %>%
-    response_to_tibble() %>%
+    response_to_tbl() %>%
     dplyr::mutate(call_metric = c("calls_made", "calls_left")) %>%
     dplyr::select(call_metric, dplyr::everything())
 
   limit_tbl
+}
+
+#' List all available exchanges.
+#'
+#' \code{get_exchanges} provides details on each exchange available through the
+#' API
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @return A tibble containing details for each exchange available through the API.
+#'
+#' @examples
+#' \dontrun{
+#' exchanges <- get_exchanges()
+#' head(exchanges)
+#' }
+#'
+#' @export
+get_exchanges <- function() {
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/all/exchanges")
+
+  query_resp <- httr::GET(query_url)
+
+  # Check for errors
+  api_errs(query_resp)
+
+  # Get content
+  query_cont <- get_response_content(query_resp)
+
+  # Parse content into tibble
+  exchange_tbl <- tibble(
+    exchange = names(query_cont),
+    coin = purrr::map(
+      query_cont,
+      names
+    )
+  ) %>%
+    tidyr::unnest() %>%
+    dplyr::mutate(market = purrr::flatten(query_cont)) %>%
+    tidyr::unnest()
+
+  exchange_tbl
 }
 
 #' List all available coins.
@@ -57,10 +100,11 @@ get_api_limit <- function(time = "hour") {
 #' coins <- get_coins()
 #' head(coins)
 #' }
+#'
 #' @export
 get_coins <- function() {
-  query_url <- httr::modify_url(API_URL,
-                                path = "api/data/coinlist")
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/all/coinlist")
 
   query_resp <- httr::GET(query_url)
 
@@ -72,7 +116,7 @@ get_coins <- function() {
 
   # Parse data into tibble
   coin_tbl <- query_cont$Data %>%
-    response_to_tibble()
+    response_to_tbl()
 
   coin_tbl
 }
@@ -129,16 +173,9 @@ get_price <- function(fsyms,
                                   tsyms = glue::collapse(tsyms, sep = ","),
                                   e = exchange,
                                   sign = tolower(sign),
-                                  tryConversion = try_conversion
+                                  tryConversion = tolower(try_conversion),
+                                  extraParams = app_name
                                 ))
-
-  # If app_name is provided, append it to the url
-  if (!is.null(app_name)) {
-    query_url <- httr::modify_url(query_url,
-                                  query = list(
-                                    extraParams = app_name
-                                  ))
-  }
 
   query_resp <- httr::GET(query_url)
 
@@ -152,7 +189,7 @@ get_price <- function(fsyms,
   price_tbl <- query_cont %>%
     tibble::as_tibble() %>%
     tidyr::unnest() %>%
-    dplyr::mutate(tosymbol = tsyms) %>%
+    dplyr::mutate(tosymbol = names(query_cont[[1]])) %>%
     tidyr::gather(
       key = fromsymbol,
       value = price,
@@ -208,16 +245,9 @@ get_price_details <- function(fsyms,
                                   tsyms = glue::collapse(tsyms, sep = ","),
                                   e = exchange,
                                   sign = tolower(sign),
-                                  tryConversion = try_conversion
+                                  tryConversion = tolower(try_conversion),
+                                  extraParams = app_name
                                 ))
-
-  # If app_name is provided, append it to the url
-  if (!is.null(app_name)) {
-    query_url <- httr::modify_url(query_url,
-                                  query = list(
-                                    extraParams = app_name
-                                  ))
-  }
 
   query_resp <- httr::GET(query_url)
 
@@ -226,17 +256,9 @@ get_price_details <- function(fsyms,
 
   query_cont <- get_response_content(query_resp)
 
-  price_tbl <- query_cont %>%
-    purrr::pluck("RAW") %>%
-    purrr::map(
-      purrr::map,
-      tibble::as_tibble
-    ) %>%
+  price_tbl <- query_cont$RAW %>%
     purrr::flatten() %>%
-    Reduce(rbind, .) %>%
-    purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A")) %>%
-    janitor::clean_names(case = "snake")
+    response_to_tbl()
 
   price_tbl
 }
@@ -312,7 +334,8 @@ get_historical_price <- function(fsym,
 
   # Parse end_date into proper numeric format
   p_end_time <- lubridate::as_datetime(end_time) %>%
-    as.numeric()
+    as.numeric() %>%
+    floor()
 
   # Build query
   query_url <- httr::modify_url(MIN_API_URL,
@@ -325,16 +348,10 @@ get_historical_price <- function(fsym,
                                   aggregate = aggregate,
                                   allData = tolower(all_data),
                                   sign = tolower(sign),
-                                  toTs = p_end_time
+                                  tryConversion = tolower(try_conversion),
+                                  toTs = p_end_time,
+                                  extraParams = app_name
                                 ))
-
-  # If app_name is provided, append it to the url
-  if (!is.null(app_name)) {
-    query_url <- httr::modify_url(query_url,
-                                  query = list(
-                                    extraParams = app_name
-                                  ))
-  }
 
   # Get response
   query_resp <- httr::GET(query_url)
@@ -347,9 +364,7 @@ get_historical_price <- function(fsym,
 
   # Return parsed tibble
   history_tbl <- query_cont$Data %>%
-    response_to_tibble() %>%
-    dplyr::mutate(time = lubridate::as_datetime(time)) %>%
-    dplyr::rename(date = time)
+    response_to_tbl()
 
   history_tbl
 }
@@ -399,15 +414,13 @@ get_pair_snapshot <- function(fsym, tsym) {
 
   coin_data <- query_cont$Data[!purrr::map_lgl(query_cont$Data, purrr::is_list) &
                                  !purrr::map_lgl(query_cont$Data, purrr::is_null)] %>%
-    tibble::as_tibble()
+    as_clean_tbl()
 
   aggregated_data <- query_cont$Data$AggregatedData %>%
-    tibble::as_tibble() %>%
-    purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A"))
+    as_clean_tbl()
 
   exchange_data <- query_cont$Data$Exchanges %>%
-    response_to_tibble()
+    response_to_tbl()
 
   list(
     coin_data = coin_data,
@@ -455,9 +468,8 @@ get_coin_snapshot <- function(id) {
 
   snapshot_tbl <- flat_cont[!purrr::map_lgl(flat_cont, purrr::is_list) &
               !purrr::map_lgl(flat_cont, purrr::is_null)] %>%
-    tibble::as_tibble() %>%
-    purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A"))
+    as_clean_tbl() %>%
+    dplyr::mutate(start_date = lubridate::mdy(start_date))
 
   snapshot_tbl
 }
@@ -497,9 +509,10 @@ get_coin_snapshot <- function(id) {
 #'
 #' @export
 get_social <- function(id) {
+  # TODO: The API doesn't return an error when an invalid ID is passed in
   check_params(id = id)
   query_url <- httr::modify_url(API_URL,
-                                path = "api/socialstats",
+                                path = "api/data/socialstats",
                                 query = list(
                                   id = id
                                 ))
@@ -513,36 +526,30 @@ get_social <- function(id) {
   # CryptoCompare data
   crypto_compare <- query_cont$Data$CryptoCompare
   similar_items <- crypto_compare$SimilarItems %>%
-    response_to_tibble()
+    response_to_tbl()
 
   cryptopian_followers <- crypto_compare$CryptopianFollowers %>%
-    response_to_tibble()
+    response_to_tbl()
 
   page_views <- crypto_compare$PageViewsSplit %>%
-    tibble::as_tibble() %>%
+    as_clean_tbl() %>%
     tidyr::gather(key = "page",
                   value = "views")
 
   crypto_compare_summary <- crypto_compare[!purrr::map_lgl(crypto_compare, purrr::is_list)] %>%
-    tibble::as_tibble() %>%
-    purrr::map_df(possibly_read)
+    as_clean_tbl()
 
   # Social media
   social_names <- c("Twitter", "Reddit", "Facebook")
 
   social_media <- query_cont$Data[social_names] %>%
-    purrr::map(
-      purrr::map_df,
-      possibly_read
-    )
+    purrr::map(as_clean_tbl)
 
   # Repo data
   repo_summary <- query_cont$Data$CodeRepository$List %>%
     # purrr::map(purrr::flatten) %>%
-    purrr::map_df(
-      purrr::map_df,
-      possibly_read
-    )
+    purrr::map_df(as_clean_tbl)
+
   list(
     similar_items = similar_items,
     cryptopian_followers = cryptopian_followers,
@@ -598,7 +605,67 @@ get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
   query_cont <- get_response_content(query_resp)
 
   pairs_tbl <- query_cont$Data %>%
-    response_to_tibble()
+    response_to_tbl()
 
   pairs_tbl
+}
+
+# api_endpoints <- httr::GET("https://min-api.cryptocompare.com")
+# api_endpoints <- httr::content(api_endpoints)
+#
+# coinlist <- httr::GET("https://min-api.cryptocompare.com/data/all/coinlist")
+# coinlist <- httr::content(coinlist)
+# coinlist$Data %>%
+#   response_to_tbl()
+
+#' Get weighted average price of coin pair based on any number of exchanges.
+#'
+#' \code{get_average_price} returns the current trading details
+#' (price, vol, open, high, low, etc) of a given coin pair as a volume weighted
+#' average based on provided exchanges.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param fsym character. 3 letter name for coin to retreive price history for.
+#' @param tsym character. 3 letter name for how price should be reported for
+#' \code{fsym}.
+#' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE
+#' @param try_conversion logical. Should BTC conversion be used fsym is not trading
+#' in tsym on specified exchange? Defaults to TRUE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return
+#'
+#' @examples
+#' \dontrun{
+#'
+#' }
+#'
+#' @export
+get_average_price <- function(fsym,
+                              tsym,
+                              exchange,
+                              sign = FALSE,
+                              try_conversion = TRUE,
+                              app_name = NULL) {
+  check_params(fsym = fsym,
+               tsym = tsym,
+               exchange = exchange,
+               sign = sign,
+               try_conversion = try_conversion,
+               app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/generateAvg",
+                                query = list(
+                                  fsym = fsym,
+                                  tsym = tsym,
+                                  e = glue::collapse(exchange, sep = ","),
+                                  sign = tolower(sign),
+                                  tryConversion = tolower(try_conversion),
+                                  extraParams = app_name
+                                ))
+  "https://min-api.cryptocompare.com/data/generateAvg?fsym=BTC&tsym=USD&e=Coinbase,Kraken,Bitstamp,Bitfinex"
 }
