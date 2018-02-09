@@ -509,7 +509,6 @@ get_coin_snapshot <- function(id) {
 #'
 #' @export
 get_social <- function(id) {
-  # TODO: The API doesn't return an error when an invalid ID is passed in
   check_params(id = id)
   query_url <- httr::modify_url(API_URL,
                                 path = "api/data/socialstats",
@@ -522,6 +521,12 @@ get_social <- function(id) {
   api_errs(query_resp)
 
   query_cont <- get_response_content(query_resp)
+
+  # Check for empty content
+  if (query_cont$Data$General$Name == "") {
+    stop(glue::glue("{id} is not a valid id. Empty result returned from API."),
+         call. = FALSE)
+  }
 
   # CryptoCompare data
   crypto_compare <- query_cont$Data$CryptoCompare
