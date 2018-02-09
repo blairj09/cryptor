@@ -82,14 +82,14 @@ check_params <- function(time,
   }
 
   if (!missing(fsym)) {
-    if (!purrr::is_character(fsym) | length(fsym > 1)) {
+    if (!purrr::is_character(fsym) | length(fsym) > 1) {
       stop("fsym must be a character vector of length 1 (ie 'BTC')",
            call. = FALSE)
     }
   }
 
   if (!missing(tsym)) {
-    if (!purrr::is_character(tsym) | length(tsym > 1)) {
+    if (!purrr::is_character(tsym) | length(tsym) > 1) {
       stop("tsym must be a character vector of length 1 (ie 'USD')",
            call. = FALSE)
     }
@@ -110,7 +110,7 @@ check_params <- function(time,
   }
 
   if (!missing(exchange)) {
-    if (!purrr::is_character(exchange)) {
+    if (!purrr::is_character(exchange) | length(exchange) > 1) {
       stop("exchange must be a chracter vector of length 1 (ie 'CCCAGG')",
            call. = FALSE)
     }
@@ -124,7 +124,7 @@ check_params <- function(time,
   }
 
   if (!missing(try_conversion)) {
-    if (purrr::is_logical(try_conversion)) {
+    if (!purrr::is_logical(try_conversion) | length(try_conversion) > 1) {
       stop("try_conversion must be a logical vector of length 1 (ie TRUE)",
            call. = FALSE)
     }
@@ -151,28 +151,30 @@ check_params <- function(time,
   }
 
   if (!missing(aggregate)) {
-    if (!purrr::is_numeric(aggregate) | aggregate < 1 | aggregate > 30) {
+    if (!purrr::is_bare_numeric(aggregate) | aggregate < 1 | aggregate > 30) {
       stop("aggregate must be a numeric vector of length 1 between 1 and 30",
            call. = FALSE)
     }
   }
 
-  if (!missing(limit) & !is.null(limit)) {
-    if (purrr::is_numeric(limit) | limit < 1 | limit > 2000) {
-      stop("limit must be a numeric vector of length 1 between 1 and 2000",
-           call. = FALSE)
+  if (!missing(limit)) {
+    if (!is.null(limit)) {
+      if (!purrr::is_bare_numeric(limit) | limit < 1 | limit > 2000) {
+        stop("limit must be a numeric vector of length 1 between 1 and 2000",
+             call. = FALSE)
+      }
     }
   }
 
   if (!missing(all_data)) {
-    if (!purrr::is_logical(all_data)) {
+    if (!purrr::is_logical(all_data) | length(all_data) > 1) {
       stop("all_data must be a logical vector of length 1 (ie TRUE)",
            call. = FALSE)
     }
   }
 
   if (!missing(id)) {
-    if (!purrr::is_numeric(id)) {
+    if (!purrr::is_bare_numeric(id) | length(id) > 1) {
       stop("id must be a numeric vector of length 1",
            call. = FALSE)
     }
@@ -194,32 +196,46 @@ possibly_read <- purrr::possibly(
   otherwise = NA
 )
 
+#' Clean up a tbl parsed from API response
+#'
+#' \code{parse_date_columns} takes a tbl and converts column names to snake case
+#' and then parses the date columns that are integers into POSIXct objects. It also
+#' converts columns to the proper type using \code{\link{possibly_read}}.
+#'
+#' @param tbl Tibble parsed from API response
+#'
+#' @return The input tbl with specified columns cleaned and updated appropriately.
+#'
+#' @noRd
+as_clean_tbl <- function(tbl) {
+  tbl %>%
+    purrr::map_df(possibly_read) %>%
+    janitor::clean_names(case = "snake") %>%
+    dplyr::mutate_at(
+      dplyr::vars(dplyr::matches("update|^time")),
+      dplyr::funs(lubridate::as_datetime)
+  )
+}
+
 #' Parse API response into a tibble
 #'
-#' \code{response_to_tibble} takes a nested list returned from an API and turns
+#' \code{response_to_tbl} takes a nested list returned from an API and turns
 #' it into a tibble. It uses \code{\link[readr]{parse_guess}} to parse the list
 #' data into appropriate R types.
 #'
 #' @param parsed_response API response that has been parsed into an R list
 #'
-#' @return A tibble of nested list.
+#' @return A tibble of a nested list.
+#'
 #' @noRd
-response_to_tibble <- function(parsed_response) {
+response_to_tbl <- function(parsed_response) {
   tbl_response <- parsed_response %>%
     purrr::map_df(tibble::as_tibble) %>%
-    purrr::map_df(readr::parse_guess,
-                  na = c("", "NA", "N/A")) %>%
-    janitor::clean_names(case = "snake")
-
-  # TODO: Parse all dates into proper type
-  # Parse LASTUPDATE to datetime
-  if ("LASTUPDATE" %in% names(tbl_response)) {
-    tbl_response %>%
-      dplyr::mutate(LASTUPDATE = lubridate::as_datetime(LASTUPDATE))
-  }
+    as_clean_tbl()
 
   tbl_response
 }
 
 MIN_API_URL <- "https://min-api.cryptocompare.com"
 API_URL <- "https://www.cryptocompare.com"
+PUBLIC_KEY <- "a0f4f688350018ad1b9785991c0bde5f704b005dc79972b114dbed4a615a983710bfc647ebe5a320daa28771dce6a2d104f5efa2e4a85ba3760b76d46f8571ca"
