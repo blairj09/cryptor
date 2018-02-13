@@ -2,7 +2,7 @@
 % Please edit documentation in R/public_api.R
 \name{get_price}
 \alias{get_price}
-\title{Get price data for one or more coin(s)}
+\title{Get price data for one or more coin(s).}
 \usage{
 get_price(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
   try_conversion = TRUE, app_name = NULL)
@@ -15,10 +15,10 @@ get_price(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
 
 \item{exchange}{character. Exchange to query. Defaults to 'CCCAGG'.}
 
-\item{sign}{logical. Should the server sign the response? Defaults to FALSE}
+\item{sign}{logical. Should the server sign the response? Defaults to FALSE.}
 
-\item{try_conversion}{logical. Should BTC conversion be used fsym is not trading
-in tsym on specified exchange? Defaults to TRUE.}
+\item{try_conversion}{logical. Should BTC conversion be used if \code{fsym}
+is not trading in \code{tsym} on specified exchange? Defaults to TRUE.}
 
 \item{app_name}{character. Name of app to be passed in API request. Defaults
 to NULL.}
@@ -41,5 +41,5 @@ get_price(c("BTC", "ETH"), c("USD", "EUR"))
 
 }
 \references{
-https://www.cryptocompare.com/api#-api-data-price-
+\url{https://www.cryptocompare.com/api#-api-data-price-}
 }

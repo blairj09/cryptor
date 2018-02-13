@@ -18,6 +18,7 @@
 #' # Get second limit
 #' get_api_limit(time = "second")
 #' }
+#'
 #' @export
 get_api_limit <- function(time = "hour") {
   # Check parameters
@@ -26,13 +27,7 @@ get_api_limit <- function(time = "hour") {
   query_url <- httr::modify_url(MIN_API_URL,
                                 path = glue::glue("stats/rate/{time}/limit"))
 
-  query_resp  <- httr::GET(query_url)
-
-  # Check for errors from API call
-  api_errs(query_resp)
-
-  # Extract and parse JSON from response
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Parse JSON from response into tibble
   limit_tbl <- query_cont[-1] %>%
@@ -50,6 +45,10 @@ get_api_limit <- function(time = "hour") {
 #'
 #' @references \url{https://min-api.cryptocompare.com}
 #'
+#' @param sign logical. Should the server sign the response? Defaults to FALSE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
 #' @return A tibble containing details for each exchange available through the API.
 #'
 #' @examples
@@ -59,17 +58,15 @@ get_api_limit <- function(time = "hour") {
 #' }
 #'
 #' @export
-get_exchanges <- function() {
+get_exchanges <- function(sign = FALSE, app_name = NULL) {
   query_url <- httr::modify_url(MIN_API_URL,
-                                path = "data/all/exchanges")
+                                path = "data/all/exchanges",
+                                query = list(
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
 
-  query_resp <- httr::GET(query_url)
-
-  # Check for errors
-  api_errs(query_resp)
-
-  # Get content
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Parse content into tibble
   exchange_tbl <- tibble(
@@ -91,7 +88,9 @@ get_exchanges <- function() {
 #' \code{get_coins} provides general information about all coins available through
 #' the CryptoCompare API.
 #'
-#' @references \url{https://www.cryptocompare.com/api#-api-data-coinlist-}
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @inheritParams get_exchanges
 #'
 #' @return A tibble containing details for each coin available through the API.
 #'
@@ -102,23 +101,106 @@ get_exchanges <- function() {
 #' }
 #'
 #' @export
-get_coins <- function() {
+get_coins <- function(sign = FALSE, app_name = NULL) {
   query_url <- httr::modify_url(MIN_API_URL,
-                                path = "data/all/coinlist")
+                                path = "data/all/coinlist",
+                                query = list(
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
 
-  query_resp <- httr::GET(query_url)
-
-  # Check for errors
-  api_errs(query_resp)
-
-  # Get content of result as text
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Parse data into tibble
-  coin_tbl <- query_cont$Data %>%
-    response_to_tbl()
+  coin_tbl <- response_to_tbl(query_cont$Data)
 
   coin_tbl
+}
+
+#' Get details on news providers integrated on cryptocompare.
+#'
+#' \code{get_news_providers} returns details about news providers that are
+#' integrated with the cryptocompare website.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @inheritParams get_exchanges
+#'
+#' @return A tibble containining simple details about integrated news providers.
+#'
+#' @export
+get_news_providers <- function(sign = FALSE, app_name = NULL) {
+  check_params(sign = sign, app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/news/providers",
+                                query = list(
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_cont <- get_api_content(query_url)
+
+  news_provider_tbl <- response_to_tbl(query_cont)
+
+  news_provider_tbl
+}
+
+#' Get cryptocurrency news items.
+#'
+#' \code{get_news} returns news items and URLs from news providers that can be
+#' found with \code{\link{get_news_providers}}.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param feeds character. One or more news providers to query. News providers
+#' can be found with \code{\link{get_news_providers}}.
+#' @param ts character or POSIXct or POSIXt. Timestamp to pull news for. Defaults
+#' to \code{Sys.time()}.
+#' @param lang character. Code for the language to return results in. Defaults
+#' to 'EN' for English.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing news items and URLs from selected providers for
+#' the specified time stamp.
+#'
+#' @examples
+#' \dontrun{
+#' get_news(c("cryptocompare", "cnn"))
+#' }
+#'
+#' @export
+get_news <- function(feeds,
+                     ts = Sys.time(),
+                     lang = "EN",
+                     sign = FALSE,
+                     app_name = NULL) {
+  check_params(feeds = feeds,
+               ts = ts,
+               lang = lang,
+               sign = sign,
+               app_name = app_name)
+
+  parsed_ts <- time_to_numeric(ts)
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/news/",
+                                query = list(
+                                  feeds = glue::collapse(feeds, sep = ","),
+                                  lTs = parsed_ts,
+                                  lang = lang,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+
+  query_cont <- get_api_content(query_url)
+
+  news_tbl <- response_to_tbl(query_cont)
+
+  news_tbl %>%
+    dplyr::mutate(published_on = lubridate::as_datetime(published_on))
 }
 
 #' Get price data for one or more coin(s).
@@ -177,13 +259,7 @@ get_price <- function(fsyms,
                                   extraParams = app_name
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  # Check response for errors
-  api_errs(query_resp)
-
-  # Get content from request
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Parse response into tibble with requested coins as rows and requested prices as columns
   price_tbl <- query_cont %>%
@@ -249,12 +325,7 @@ get_price_details <- function(fsyms,
                                   extraParams = app_name
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  # Check for errors
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_ur)
 
   price_tbl <- query_cont$RAW %>%
     purrr::flatten() %>%
@@ -273,9 +344,9 @@ get_price_details <- function(fsyms,
 #' @param fsym character. 3 letter name for coin to retreive price history for.
 #' @param tsym character. 3 letter name for how price should be reported for
 #' \code{fsym}.
-#' @param end_time character. Final date to retrieve data for in the format of yyyy-mm-dd
-#' with optional hh:mm:ss (used when unit is set to "hour" or "minute"). Defaults to
-#' \code{Sys.time()}.
+#' @param end_time character or POSIXct or POSIXt. Final date to retrieve data
+#' for in the format of yyyy-mm-dd with optional hh:mm:ss (used when unit is
+#' set to "hour" or "minute"). Defaults to \code{Sys.time()}.
 #' @param unit character. Either "day", "hour", or "minute" indicating the granularity of
 #' the returned data. The default is 'day'. \strong{Note:} minute data is only available
 #' for the past 7 days.
@@ -333,9 +404,7 @@ get_historical_price <- function(fsym,
   }
 
   # Parse end_date into proper numeric format
-  p_end_time <- lubridate::as_datetime(end_time) %>%
-    as.numeric() %>%
-    floor()
+  p_end_time <- time_to_numeric(end_time)
 
   # Build query
   query_url <- httr::modify_url(MIN_API_URL,
@@ -353,18 +422,10 @@ get_historical_price <- function(fsym,
                                   extraParams = app_name
                                 ))
 
-  # Get response
-  query_resp <- httr::GET(query_url)
-
-  # Check response for API errors
-  api_errs(query_resp)
-
-  # Get contents of response
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Return parsed tibble
-  history_tbl <- query_cont$Data %>%
-    response_to_tbl()
+  history_tbl <- response_to_tbl(query_cont$Data)
 
   history_tbl
 }
@@ -406,11 +467,7 @@ get_pair_snapshot <- function(fsym, tsym) {
                                   tsym = tsym
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   coin_data <- query_cont$Data[!purrr::map_lgl(query_cont$Data, purrr::is_list) &
                                  !purrr::map_lgl(query_cont$Data, purrr::is_null)] %>%
@@ -419,8 +476,7 @@ get_pair_snapshot <- function(fsym, tsym) {
   aggregated_data <- query_cont$Data$AggregatedData %>%
     as_clean_tbl()
 
-  exchange_data <- query_cont$Data$Exchanges %>%
-    response_to_tbl()
+  exchange_data <- response_to_tbl(query_cont$Data$Exchanges)
 
   list(
     coin_data = coin_data,
@@ -457,11 +513,7 @@ get_coin_snapshot <- function(id) {
                                   id = id
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   flat_cont <- query_cont$Data[1:3] %>%
     purrr::flatten()
@@ -516,11 +568,7 @@ get_social <- function(id) {
                                   id = id
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   # Check for empty content
   if (query_cont$Data$General$Name == "") {
@@ -530,11 +578,9 @@ get_social <- function(id) {
 
   # CryptoCompare data
   crypto_compare <- query_cont$Data$CryptoCompare
-  similar_items <- crypto_compare$SimilarItems %>%
-    response_to_tbl()
+  similar_items <- response_to_tbl(crypto_compare$SimilarItems)
 
-  cryptopian_followers <- crypto_compare$CryptopianFollowers %>%
-    response_to_tbl()
+  cryptopian_followers <- response_to_tbl(crypto_compare$CryptopianFollowers)
 
   page_views <- crypto_compare$PageViewsSplit %>%
     as_clean_tbl() %>%
@@ -603,20 +649,227 @@ get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
                                   sign = tolower(sign)
                                 ))
 
-  query_resp <- httr::GET(query_url)
+  query_cont <- get_api_content(query_url)
 
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
-
-  pairs_tbl <- query_cont$Data %>%
-    response_to_tbl()
+  pairs_tbl <- response_to_tbl(query_cont$Data)
 
   pairs_tbl
 }
 
+#' Get top exchanges by volume for a given currency pair.
+#'
+#' \code{get_top_exchanges} returns a tibble containing details about the top
+#' exchanges by volume for a given currency pair.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param fsym character. 3 letter name for coin to retreive price history for.
+#' @param tsym character. 3 letter name for how price should be reported for
+#' \code{fsym}.
+#' @param limit numeric. Maximum number of returned exchanges. Between 1 and 50.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing volume details for the top \code{limit} exchanges.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' }
+#'
+#' @export
+get_top_exchanges <- function(fsym,
+                              tsym,
+                              limit = 5,
+                              sign = FALSE,
+                              app_name = NULL) {
+  check_params(fsym = fsym,
+               tsym = tsym,
+               limit = limit,
+               sign = sign,
+               app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/top/exchanges",
+                                query = list(
+                                  fsym = fsym,
+                                  tsym = tsym,
+                                  limit = limit,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_cont <- get_api_content(query_url)
+
+  exchanges_tbl <- response_to_tbl(query_cont$Data)
+
+  exchanges_tbl
+}
+
+#' Get top exchanges by volume along with additional details.
+#'
+#' \code{get_top_exchanges_full} retrieves top exchanges for the given coin pair
+#' by volume along with additional coin and exchange details.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @inheritParams get_top_exchanges
+#'
+#' @return A named list containing exchanges, coin_info, and aggregated_data.
+#'
+#' @examples
+#' \dontrun{
+#' get_top_exchanges_full("BTC", "USD")
+#' }
+#' @export
+get_top_exchanges_full <- function(fsym,
+                                   tsym,
+                                   limit = 5,
+                                   sign = FALSE,
+                                   app_name = NULL) {
+  check_params(fsym = fsym,
+               tsym = tsym,
+               limit = limit,
+               sign = sign,
+               app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/top/exchanges/full",
+                                query = list(
+                                  fsym = fsym,
+                                  tsym = tsym,
+                                  limit = limit,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_cont <- get_api_content(query_url)
+
+  list(
+    exchanges = response_to_tbl(query_cont$Data$Exchanges),
+    coin_info = as_clean_tbl(query_cont$Data$CoinInfo),
+    aggregated_data = as_clean_tbl(query_cont$Data$AggregatedData)
+  )
+}
+
+#' Get top coins by volume for the provided currency.
+#'
+#' \code{get_top_volumes} returns details about the top coins by volume for the
+#' specified currency.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param tsym character. 3 letter name for coin to get top volumes for.
+#' @param limit numeric. Maximum number of records to return. Defaults to 20.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing details about the top coins by volume for the
+#' specified coin.
+#'
+#' @examples
+#' \dontrun{
+#' # Get top volumes traded into USD
+#' get_top_volumes("USD")
+#' }
+#'
+#' @export
+get_top_volumes <- function(tsym,
+                            limit = 20,
+                            sign = FALSE,
+                            app_name = NULL) {
+  check_params(tsym = tsym,
+               limit = limit,
+               sign = sign,
+               app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/top/volumes",
+                                query = list(
+                                  tsym = tsym,
+                                  limit = limit,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_cont <- get_api_content(query_url)
+
+  volumes_tbl <- response_to_tbl(query_cont$Data)
+
+  volumes_tbl
+}
+
+#' Get top coins by total volume across all markets.
+#'
+#' \code{get_top_coins_by_volume} returns details about the top coins by volume
+#' for the specified coin (\code{tsym}).
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param tsym character. 3 letter name for coin to get top volumes for.
+#' @param limit numeric. Number of records to return. Defaults to 10.
+#' @param page numeric. Page of results to return. Defaults to 0.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing details about the top coins by volume for the
+#' specified coin.
+#'
+#' @examples
+#' \dontrun{
+#' get_top_coins_by_volume("USD")
+#' }
+#'
+#' @export
+get_top_coins_by_volume <- function(tsym,
+                                    limit = 10,
+                                    page = 0,
+                                    sign = FALSE,
+                                    app_name = NULL) {
+  check_params(tsym = tsym,
+               limit = limit,
+               page = page,
+               sign = sign,
+               app_name = app_name)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/top/totalvol",
+                                query = list(
+                                  tsym = tsym,
+                                  limit = limit,
+                                  page = page,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_cont <- get_api_content(query_url)
+
+  query_data <- purrr::transpose(query_cont$Data)
+
+  dplyr::bind_cols(
+    coin_info = response_to_tbl(query_data$CoinInfo),
+    # Exclude stream entries - at times contain more than a single entry
+    conversion_info = purrr::map_df(query_data$ConversionInfo,
+                                    `[`,
+                                    c(
+                                      "Conversion",
+                                      "ConversionSymbol",
+                                      "CurrencyFrom",
+                                      "CurrencyTo",
+                                      "Market",
+                                      "Supply",
+                                      "TotalVolume24H"
+                                    )) %>%
+      as_clean_tbl()
+  )
+}
+
 # api_endpoints <- httr::GET("https://min-api.cryptocompare.com")
 # api_endpoints <- httr::content(api_endpoints)
+# View(api_endpoints)
 #
 # coinlist <- httr::GET("https://min-api.cryptocompare.com/data/all/coinlist")
 # coinlist <- httr::content(coinlist)
@@ -625,7 +878,7 @@ get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
 
 #' Get weighted average price of coin pair based on any number of exchanges.
 #'
-#' \code{get_average_price} returns the current trading details
+#' \code{get_price_avg} returns the current trading details
 #' (price, vol, open, high, low, etc) of a given coin pair as a volume weighted
 #' average based on provided exchanges.
 #'
@@ -634,30 +887,32 @@ get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
 #' @param fsym character. 3 letter name for coin to retreive price history for.
 #' @param tsym character. 3 letter name for how price should be reported for
 #' \code{fsym}.
-#' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
+#' @param exchanges character. Exchanges to build weighted average from.
+#' Defaults to 'CCCAGG'.
 #' @param sign logical. Should the server sign the response? Defaults to FALSE
 #' @param try_conversion logical. Should BTC conversion be used fsym is not trading
 #' in tsym on specified exchange? Defaults to TRUE.
 #' @param app_name character. Name of app to be passed in API request. Defaults
 #' to NULL.
 #'
-#' @return
+#' @return A tibble containing price details as a volume weighted average of the
+#' provided exchanges.
 #'
 #' @examples
 #' \dontrun{
-#'
+#' get_price_avg("BTC", "USD", c("Coinbase", "Kraken", "Bitfinex"))
 #' }
 #'
 #' @export
-get_average_price <- function(fsym,
-                              tsym,
-                              exchange,
-                              sign = FALSE,
-                              try_conversion = TRUE,
-                              app_name = NULL) {
+get_price_avg <- function(fsym,
+                          tsym,
+                          exchanges,
+                          sign = FALSE,
+                          try_conversion = TRUE,
+                          app_name = NULL) {
   check_params(fsym = fsym,
                tsym = tsym,
-               exchange = exchange,
+               exchanges = exchanges,
                sign = sign,
                try_conversion = try_conversion,
                app_name = app_name)
@@ -667,10 +922,101 @@ get_average_price <- function(fsym,
                                 query = list(
                                   fsym = fsym,
                                   tsym = tsym,
-                                  e = glue::collapse(exchange, sep = ","),
+                                  e = glue::collapse(exchanges, sep = ","),
                                   sign = tolower(sign),
                                   tryConversion = tolower(try_conversion),
                                   extraParams = app_name
                                 ))
-  "https://min-api.cryptocompare.com/data/generateAvg?fsym=BTC&tsym=USD&e=Coinbase,Kraken,Bitstamp,Bitfinex"
+
+  query_resp <- httr::GET(query_url)
+
+  api_errs(query_resp)
+
+  query_cont <- get_response_content(query_resp)
+
+  price_average_tbl <- query_cont$RAW %>%
+    as_clean_tbl()
+
+  price_average_tbl
+}
+
+#' Get averge daily price for a given currency pair.
+#'
+#' \code{get_day_avg} returns the daily average for a given currency pair calculated
+#' in one of 3 ways.
+#'
+#' @references \url{https://min-api.cryptocompare.com}
+#'
+#' @param fsym character. 3 letter name for coin to retreive price history for.
+#' @param tsym character. 3 letter name for how price should be reported for
+#' \code{fsym}.
+#' @param end_time character or POSIXct or POSIXt. Indicates the date data should
+#' be retrieved for. Defaults to \code{Sys.time()}.
+#' @param exchange character. Exchange to query. Defaults to 'CCCAGG'.
+#' @param avg_type character. Indicates the type of calculation to use. One of
+#' "HourVWAP", "MidHighLow" or "VolFVolT".
+#' @param utc_hour_diff numeric. Hour difference between current timezone and UTC.
+#' The API returns results in UTC by default. Valid values are between -12 and 14.
+#' @param sign logical. Should the server sign the response? Defaults to FALSE
+#' @param try_conversion logical. Should BTC conversion be used fsym is not trading
+#' in tsym on specified exchange? Defaults to TRUE.
+#' @param app_name character. Name of app to be passed in API request. Defaults
+#' to NULL.
+#'
+#' @return A tibble containing the date, fsym, tsym, and daily average price
+#'
+#' @examples
+#' \dontrun{
+#' # Get today's daily average of BTC in USD
+#' get_day_avg("BTC", "USD")
+#' }
+#'
+#' @export
+get_day_avg <- function(fsym,
+                        tsym,
+                        end_time = Sys.time(),
+                        exchange = "CCCAGG",
+                        avg_type = "HourVWAP",
+                        utc_hour_diff = 0,
+                        sign = FALSE,
+                        try_conversion = TRUE,
+                        app_name = NULL) {
+  check_params(fsym = fsym,
+               tsym = tsym,
+               end_time = end_time,
+               exchange = exchange,
+               avg_type = avg_type,
+               utc_hour_diff = utc_hour_diff,
+               sign = sign,
+               try_conversion = try_conversion,
+               app_name = app_name)
+
+  # Parse end_time into correct format
+  p_end_time <- time_to_numeric(end_time)
+
+  query_url <- httr::modify_url(MIN_API_URL,
+                                path = "data/dayAvg",
+                                query = list(
+                                  fsym = fsym,
+                                  tsym = tsym,
+                                  e = exchange,
+                                  avgType = avg_type,
+                                  UTCHourDiff = utc_hour_diff,
+                                  toTs = p_end_time,
+                                  sign = tolower(sign),
+                                  extraParams = app_name
+                                ))
+
+  query_resp <- httr::GET(query_url)
+
+  api_errs(query_resp)
+
+  query_cont <- get_response_content(query_resp)
+
+  tibble(
+    date = lubridate::as_date(end_time),
+    fsym = fsym,
+    tsym = tsym,
+    daily_avg = query_cont[[1]]
+  )
 }

@@ -4,7 +4,7 @@
 \alias{get_historical_price}
 \title{Get historical daily price data}
 \usage{
-get_historical_price(fsym, tsym, end_time = Sys.Date(), unit = "day",
+get_historical_price(fsym, tsym, end_time = Sys.time(), unit = "day",
   exchange = "CCCAGG", aggregate = 1, limit = NULL, all_data = FALSE,
   sign = FALSE, try_conversion = TRUE, app_name = NULL)
 }
@@ -14,9 +14,9 @@ get_historical_price(fsym, tsym, end_time = Sys.Date(), unit = "day",
 \item{tsym}{character. 3 letter name for how price should be reported for
 \code{fsym}.}
 
-\item{end_time}{character. Final date to retrieve data for in the format of yyyy-mm-dd
-with optional hh:mm:ss (used when unit is set to "hour" or "minute"). Defaults to
-\code{Sys.Date()}.}
+\item{end_time}{character or POSIXct or POSIXt. Final date to retrieve data
+for in the format of yyyy-mm-dd with optional hh:mm:ss (used when unit is
+set to "hour" or "minute"). Defaults to \code{Sys.time()}.}
 
 \item{unit}{character. Either "day", "hour", or "minute" indicating the granularity of
 the returned data. The default is 'day'. \strong{Note:} minute data is only available

@@ -2,10 +2,10 @@
 % Please edit documentation in R/public_api.R
 \name{get_price_details}
 \alias{get_price_details}
-\title{Get full price details for one or more coin(s)}
+\title{Get full price details for one or more coin(s).}
 \usage{
 get_price_details(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
-  app_name = NULL, try_conversion = TRUE)
+  try_conversion = TRUE, app_name = NULL)
 }
 \arguments{
 \item{fsyms}{character. 3 letter name(s) for coins to retreive price details for.}
@@ -15,13 +15,13 @@ get_price_details(fsyms, tsyms, exchange = "CCCAGG", sign = FALSE,
 
 \item{exchange}{character. Exchange to query. Defaults to 'CCCAGG'.}
 
-\item{sign}{logical. Should the server sign the response? Defaults to FALSE}
+\item{sign}{logical. Should the server sign the response? Defaults to FALSE.}
+
+\item{try_conversion}{logical. Should BTC conversion be used if \code{fsym}
+is not trading in \code{tsym} on specified exchange? Defaults to TRUE.}
 
 \item{app_name}{character. Name of app to be passed in API request. Defaults
 to NULL.}
-
-\item{try_conversion}{logical. Should BTC conversion be used fsym is not trading
-in tsym on specified exchange? Defaults to TRUE.}
 }
 \value{
 A tibble containing comprehensive price details for \code{fsyms} in
@@ -39,8 +39,8 @@ get_price_details("BTC", "USD")
 
 # Get BTC and ETH price details in USD and EUR
 get_price_details(c("BTC", "ETH"), c("USD", "EUR"))
-
 }
+
 }
 \references{
 https://www.cryptocompare.com/api#-api-data-price-

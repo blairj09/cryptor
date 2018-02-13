@@ -51,7 +51,32 @@ api_errs <- function(api_response) {
     }
   }
 
+  if ("Data" %in% names(api_content)) {
+    if (length(api_content$Data) == 0) {
+      stop(api_content$Message,
+           call. = FALSE)
+    }
+  }
+
   invisible(TRUE)
+}
+
+#' Get and parse response from API call.
+#'
+#' \code{get_api_content} takes an API endpoint and returns the content of
+#' the response after checking for errors.
+#'
+#' @param endpoint character. An API endpoint in the form of a URL.
+#'
+#' @return The content of the repsonse returned for the given endpoint. If the
+#' API returns an error, this function will error out and provide details on the
+#' error.
+#'
+#' @noRd
+get_api_content <- function(endpoint) {
+  query_resp <- httr::GET(endpoint)
+  api_errs(query_resp)
+  get_response_content(query_resp)
 }
 
 check_params <- function(time,
@@ -60,6 +85,7 @@ check_params <- function(time,
                          fsyms,
                          tsyms,
                          exchange,
+                         exchanges,
                          sign,
                          try_conversion,
                          app_name,
@@ -68,7 +94,13 @@ check_params <- function(time,
                          aggregate,
                          limit,
                          all_data,
-                         id) {
+                         id,
+                         avg_type,
+                         utc_hour_diff,
+                         page,
+                         feeds,
+                         ts,
+                         lang) {
   if (!missing(time)) {
     if (length(time) > 1) {
       stop("time must be either 'hour', 'minute', or 'second'.",
@@ -116,6 +148,13 @@ check_params <- function(time,
     }
   }
 
+  if (!missing(exchanges)) {
+    if (!purrr::is_character(exchanges)) {
+      stop("exchanges must be a character vector of valid exchange names",
+           call. = FALSE)
+    }
+  }
+
   if (!missing(sign)) {
     if (!purrr::is_logical(sign) | length(sign) > 1) {
       stop("sign must be a logical vector of length 1 (ie TRUE)",
@@ -138,7 +177,14 @@ check_params <- function(time,
 
   if (!missing(end_time)) {
     if (!grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}", end_time)) {
-      stop("end_time must be a string matching the pattern of 'yyyy-mm-dd hh:mm:ss' where 'hh:mm:ss' is optional",
+      stop("end_time must be a string or POSIXct or POSIXt object matching the pattern of 'yyyy-mm-dd hh:mm:ss' where 'hh:mm:ss' is optional",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(ts)) {
+    if (!grepl("^[0-9]{4}-[0-9]{2}-[0-9]{2}", ts)) {
+      stop("ts must be a string or POSIXct or POSIXt object matching the pattern of 'yyyy-mm-dd hh:mm:ss' where 'hh:mm:ss' is optional",
            call. = FALSE)
     }
   }
@@ -176,6 +222,41 @@ check_params <- function(time,
   if (!missing(id)) {
     if (!purrr::is_bare_numeric(id) | length(id) > 1) {
       stop("id must be a numeric vector of length 1",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(avg_type)) {
+    if (!purrr::is_character(avg_type) | !avg_type %in% c("HourVWAP", "MidHighLow", "VolFVolT")) {
+      stop("avg_type must be a character vector of either 'HourVWAP', 'MidHighLow', or 'VolFVolT'",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(utc_hour_diff)) {
+    if (!purrr::is_bare_numeric(utc_hour_diff) | utc_hour_diff < -12 | utc_hour_diff > 14) {
+      stop("utc_hour_diff must be a numeric value between -12 and 14",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(page)) {
+    if (!purrr::is_bare_numeric(page)) {
+      stop("page must be a numeric value",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(feeds)) {
+    if (!purrr::is_character(feeds)) {
+      stop("feeds must be a character vector",
+           call. = FALSE)
+    }
+  }
+
+  if (!missing(lang)) {
+    if (!purrr::is_character(lang) | length(lang) > 1) {
+      stop("lang must be a character vector of length one",
            call. = FALSE)
     }
   }
@@ -220,7 +301,7 @@ as_clean_tbl <- function(tbl) {
 #' Parse API response into a tibble
 #'
 #' \code{response_to_tbl} takes a nested list returned from an API and turns
-#' it into a tibble. It uses \code{\link[readr]{parse_guess}} to parse the list
+#' it into a tibble. It uses \code{\link{as_clean_tbl}} to parse the list
 #' data into appropriate R types.
 #'
 #' @param parsed_response API response that has been parsed into an R list
@@ -230,10 +311,25 @@ as_clean_tbl <- function(tbl) {
 #' @noRd
 response_to_tbl <- function(parsed_response) {
   tbl_response <- parsed_response %>%
-    purrr::map_df(tibble::as_tibble) %>%
-    as_clean_tbl()
+    purrr::map_df(as_clean_tbl)
 
   tbl_response
+}
+
+#' Parse time into a numeric value
+#'
+#' \code{time_to_numeric} parses a provided time value into a numeric value good
+#' good for passing into the API.
+#'
+#' @param time POSIXct or POSIXt value
+#'
+#' @return A numeric value respresenting the input time.
+#'
+#' @noRd
+time_to_numeric <- function(time) {
+  lubridate::as_datetime(time) %>%
+    as.numeric() %>%
+    floor()
 }
 
 MIN_API_URL <- "https://min-api.cryptocompare.com"

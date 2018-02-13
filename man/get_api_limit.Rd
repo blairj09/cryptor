@@ -11,7 +11,7 @@ get_api_limit(time = "hour")
 }
 \value{
 A single tibble with two rows - one for calls made and one for calls
-remaining
+  remaining.
 }
 \description{
 \code{get_api_limit} returns a tibble detailing API calls made and API calls
@@ -25,6 +25,7 @@ get_api_limit()
 # Get second limit
 get_api_limit(time = "second")
 }
+
 }
 \references{
 \url{https://www.cryptocompare.com/api#requests}
