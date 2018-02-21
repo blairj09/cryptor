@@ -29,8 +29,10 @@ get_api_limit <- function(time = "hour") {
 
   query_cont <- get_api_content(query_url)
 
+
+
   # Parse JSON from response into tibble
-  limit_tbl <- query_cont[-1] %>%
+  limit_tbl <- query_cont[names(query_cont) != "Message"] %>%
     response_to_tbl() %>%
     dplyr::mutate(call_metric = c("calls_made", "calls_left")) %>%
     dplyr::select(call_metric, dplyr::everything())
@@ -177,6 +179,7 @@ get_news <- function(feeds,
                      lang = "EN",
                      sign = FALSE,
                      app_name = NULL) {
+  # TODO: handle cases when body returns as an integer - throws an error as a result of as_clean_tbl when trying to bind_rows during map_df.
   check_params(feeds = feeds,
                ts = ts,
                lang = lang,
@@ -194,10 +197,22 @@ get_news <- function(feeds,
                                   extraParams = app_name
                                 ))
 
-
   query_cont <- get_api_content(query_url)
 
-  news_tbl <- response_to_tbl(query_cont)
+  news_tbl <- response_to_tbl(purrr::map(
+    query_cont,
+    `[`,
+    c("id",
+      "guid",
+      "published_on",
+      "imageurl",
+      "title",
+      "url",
+      "source",
+      "body",
+      "tags",
+      "lang")
+  ))
 
   news_tbl %>%
     dplyr::mutate(published_on = lubridate::as_datetime(published_on))
@@ -325,7 +340,7 @@ get_price_details <- function(fsyms,
                                   extraParams = app_name
                                 ))
 
-  query_cont <- get_api_content(query_ur)
+  query_cont <- get_api_content(query_url)
 
   price_tbl <- query_cont$RAW %>%
     purrr::flatten() %>%
@@ -570,7 +585,8 @@ get_social <- function(id) {
 
   query_cont <- get_api_content(query_url)
 
-  # Check for empty content
+  # Check for empty content - this is because the API does not return an error
+  # when an invalid id value is passed in.
   if (query_cont$Data$General$Name == "") {
     stop(glue::glue("{id} is not a valid id. Empty result returned from API."),
          call. = FALSE)
