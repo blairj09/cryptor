@@ -310,8 +310,17 @@ as_clean_tbl <- function(tbl) {
 #'
 #' @noRd
 response_to_tbl <- function(parsed_response) {
+  # TODO: Find more efficient implementation for this
   tbl_response <- parsed_response %>%
-    purrr::map_df(as_clean_tbl)
+    # Convert everything to character - this is corrected in as_clean_tbl()
+    # This conversion ensures that tibbles will be able to be stacked with
+    # bind_rows() in map_df()
+    purrr::map(
+      purrr::map,
+      as.character
+    ) %>%
+    purrr::map_df(tibble::as_tibble) %>%
+    as_clean_tbl()
 
   tbl_response
 }
