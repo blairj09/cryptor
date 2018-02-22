@@ -97,7 +97,11 @@ str(eth_social_stats)
 ```
 
 ### Pairs Data
-
+Details about top cryptocurrency pairs (by volume) can be retrived using `get_top_pairs()`.
+```{r top-pairs}
+# Top ETH pairs
+get_top_pairs("ETH")
+```
 
 ### API Limits
 The API has hour, minute, and second call rate limits. These limits, along with calls made against the limit, can be retrieved using `get_api_limit()` as follows:
