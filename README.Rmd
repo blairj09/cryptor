@@ -14,13 +14,100 @@ knitr::opts_chunk$set(
 ```
 # cryptor
 
-Cryptor provides a basic wrapper around the public API provided by [CryptoCompare](https://www.cryptocompare.com). CryptoCompare has provided a very comprehsive API for cryptocurrency data and this package does its best to provide an acecssible R interface to the API.
+[![Travis-CI Build Status](https://travis-ci.org/blairj09/cryptor.svg?branch=master)](https://travis-ci.org/blairj09/cryptor)
+[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github//blairj09/cryptor/?branch=master&svg=true)](https://ci.appveyor.com/project/blairj09/cryptor)
+[![Coverage status](https://codecov.io/gh/blairj09/cryptor/branch/master/graph/badge.svg)](https://codecov.io/github/blairj09/cryptor?branch=master)
+
+`cryptor` provides a basic wrapper around the public API provided by [CryptoCompare](https://www.cryptocompare.com). CryptoCompare has provided a very comprehensive [public cryptocurrency API](https://min-api.cryptocompare.com). This package strives to create a clean and intuitive R interface for that API.
 
 ## Installation
 
-You can install cryptor from github with:
+You can install `cryptor` from github with:
 
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
 devtools::install_github("blairj09/cryptor")
+```
+
+## Usage
+This package comes with several functions that map directly to CryptoCompare [API endpoints](https://min-api.cryptocompare.com). These functions center on price and other coin details for various cryptorcurrencies. CryptoCompare integrates with several exchanges and the exchange to be queried can often be requested. However, the default exchange of CCCAGG often works the best. The following outlines common use cases for various functions.
+
+```{r load-package}
+library(cryptor)
+```
+
+
+### Available Exchanges
+Possible exchanges to query can be requested using the `get_exchanges()` function. This returns a comprehensive tibble of available exchanges along with each market available on that exchange.
+```{r get-exchanges}
+exchanges <- get_exchanges()
+head(exchanges)
+```
+
+In this case, the `exchange` column contains the name of the exchange while the `coin` column contains the coin and the `market` column contains the market supported for `coin` on a given `exchange`. All possible exchanges can be identified by running `unique(get_exchanges()$exchage)`.
+
+### Available Coins
+All coins supported by the API and correspanding details can be obtained using the `get_coins()` function.
+
+```{r get-coins}
+coins <- get_coins()
+head(coins)
+```
+
+### Current Price Data
+There are two main functions for retreiving current price data. `get_price()` simply returns the price of the requested coins. `get_price_details()` returns current price data along with open, close, and other 24 hour price statistics. Price functions take two main parameters: `fsym(s)` and `tsym(s)`. These parameters specify the requested coin(s) (`fsym(s)`) and the currency the price is reported in (`tsym(s)`). The following examples illustrate getting price data for Bitcoin (BTC) and Etherium (ETH) in terms of US Dollars (USD).
+
+```{r get-price}
+get_price(c("BTC", "ETH"), "USD")
+```
+
+```{r get-price-details}
+get_price_details(c("BTC", "ETH"), "USD")
+```
+
+### Historical Price Data
+Historical price data can be retreived using `get_historical_price()`. Price can be obtained at the daily, hourly, or minute level. Minute level data is only available for the past 7 days. Anything beyond 7 days must be either daily or hourly data. The following example demonstrates how to get NEO to USD data for the past 7 days.
+
+*As a note, it seems that the API sometimes returns all historical entries, regardless of the limit provided.*
+
+```{r historical-price}
+btc_price_history <- get_historical_price("NEO", "USD")
+head(btc_price_history)
+```
+
+### Snapshot Data
+CrytpoCompare provides endpoints for "snapshot data". These endpoints provide summarized data about individual coins and coin pairs.
+
+```{r coin-snapshot}
+btc_snapshot <- get_coin_snapshot(1182)
+names(btc_snapshot)
+```
+
+```{r pair-snapshot}
+get_pair_snapshot("BTC", "ETH")
+```
+
+### Social Data
+One of the most impressive features of the CryptoCompare API is the ability to query some basic social stats for a given coin. The data provided contains details about the coin's github repositories, page view data from CryptoCompare's main website, and a listing of similar coins. This data can be accessed as follows:
+
+```{r social-stats}
+# Social stats for Bitcoin
+eth_social_stats <- get_social(1182)
+str(eth_social_stats)
+```
+
+### Pairs Data
+
+
+### API Limits
+The API has hour, minute, and second call rate limits. These limits, along with calls made against the limit, can be retrieved using `get_api_limit()` as follows:
+```{r api-limits}
+# Second limit
+get_api_limit("second")
+
+# Minute limit
+get_api_limit("minute")
+
+# Hour limit
+get_api_limit("hour")
 ```
