@@ -36,7 +36,7 @@ api_errs <- function(api_response) {
 
   if (httr::http_type(api_response) != "application/json") {
     stop("API returned type ",
-         httr::http_status(coin_list),
+         httr::http_status(api_response),
          " instead of the expected JSON",
          call. = FALSE)
   }

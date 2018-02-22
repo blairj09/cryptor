@@ -179,7 +179,6 @@ get_news <- function(feeds,
                      lang = "EN",
                      sign = FALSE,
                      app_name = NULL) {
-  # TODO: handle cases when body returns as an integer - throws an error as a result of as_clean_tbl when trying to bind_rows during map_df.
   check_params(feeds = feeds,
                ts = ts,
                lang = lang,
@@ -691,7 +690,8 @@ get_top_pairs <- function(fsym, limit = 5, sign = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#'
+#' # Top exchanges for BTC - USD
+#' get_top_exchanges("BTC", "USD")
 #' }
 #'
 #' @export

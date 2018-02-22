@@ -28,7 +28,8 @@ exchanges by volume for a given currency pair.
 }
 \examples{
 \dontrun{
-
+# Top exchanges for BTC - USD
+get_top_exchanges("BTC", "USD")
 }
 
 }
