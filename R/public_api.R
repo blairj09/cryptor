@@ -275,7 +275,8 @@ get_price <- function(fsyms,
 
   query_cont <- get_api_content(query_url)
 
-  # Parse response into tibble with requested coins as rows and requested prices as columns
+  # Parse response into tibble with requested coins as rows and requested
+  # prices as columns
   price_tbl <- query_cont %>%
     tibble::as_tibble() %>%
     tidyr::unnest() %>%
@@ -883,15 +884,6 @@ get_top_coins_by_volume <- function(tsym,
   )
 }
 
-# api_endpoints <- httr::GET("https://min-api.cryptocompare.com")
-# api_endpoints <- httr::content(api_endpoints)
-# View(api_endpoints)
-#
-# coinlist <- httr::GET("https://min-api.cryptocompare.com/data/all/coinlist")
-# coinlist <- httr::content(coinlist)
-# coinlist$Data %>%
-#   response_to_tbl()
-
 #' Get weighted average price of coin pair based on any number of exchanges.
 #'
 #' \code{get_price_avg} returns the current trading details
@@ -944,11 +936,7 @@ get_price_avg <- function(fsym,
                                   extraParams = app_name
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   price_average_tbl <- query_cont$RAW %>%
     as_clean_tbl()
@@ -1023,11 +1011,7 @@ get_day_avg <- function(fsym,
                                   extraParams = app_name
                                 ))
 
-  query_resp <- httr::GET(query_url)
-
-  api_errs(query_resp)
-
-  query_cont <- get_response_content(query_resp)
+  query_cont <- get_api_content(query_url)
 
   tibble(
     date = lubridate::as_date(end_time),

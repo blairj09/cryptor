@@ -74,7 +74,7 @@ api_errs <- function(api_response) {
 #'
 #' @noRd
 get_api_content <- function(endpoint) {
-  query_resp <- httr::GET(endpoint)
+  query_resp <- httr::GET(endpoint, httr::user_agent(UA))
   api_errs(query_resp)
   get_response_content(query_resp)
 }
@@ -344,3 +344,4 @@ time_to_numeric <- function(time) {
 MIN_API_URL <- "https://min-api.cryptocompare.com"
 API_URL <- "https://www.cryptocompare.com"
 PUBLIC_KEY <- "a0f4f688350018ad1b9785991c0bde5f704b005dc79972b114dbed4a615a983710bfc647ebe5a320daa28771dce6a2d104f5efa2e4a85ba3760b76d46f8571ca"
+UA <- "https://github.com/blairj09/cryptor"
