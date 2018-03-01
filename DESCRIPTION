@@ -28,10 +28,10 @@ Imports:
 Depends:
     R (>= 3.4.3)
 Suggests: 
-    knitr,
-    rmarkdown,
-    testthat,
-    covr
+    knitr (>= 1.20),
+    rmarkdown (>= 1.8),
+    testthat (>= 2.0.0),
+    covr (>= 3.0.1)
 VignetteBuilder: knitr
 Remotes: sfirke/janitor,
     tidyverse/dplyr
