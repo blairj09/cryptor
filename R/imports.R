@@ -17,5 +17,5 @@ NULL
 #' @keywords internal
 #' @export
 #' @importFrom tibble tibble
-#' @usage tibble()
+#' @usage tibble(...)
 NULL

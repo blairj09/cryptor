@@ -4,7 +4,7 @@
 \alias{tibble}
 \title{Tibble function}
 \usage{
-tibble()
+tibble(...)
 }
 \description{
 Tibble function

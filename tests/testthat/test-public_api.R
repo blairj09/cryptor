@@ -262,7 +262,7 @@ test_that("get_coin_snapshot works", {
                  proof_type = "character",
                  start_date = "Date",
                  twitter = "character",
-                 affiliate_url = "character",
+                 website_url = "character",
                  website = "character",
                  last_block_explorer_update_ts = c("POSIXct", "POSIXt"),
                  block_number = "integer",
