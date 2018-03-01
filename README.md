@@ -3,7 +3,7 @@
 cryptor
 =======
 
-[![Travis-CI Build Status](https://travis-ci.org/blairj09/cryptor.svg?branch=master)](https://travis-ci.org/blairj09/cryptor) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github//blairj09/cryptor/?branch=master&svg=true)](https://ci.appveyor.com/project/blairj09/cryptor) [![Coverage status](https://codecov.io/gh/blairj09/cryptor/branch/master/graph/badge.svg)](https://codecov.io/github/blairj09/cryptor?branch=master) [![CRAN status](https://www.r-pkg.org/badges/version/cryptor)](https://cran.r-project.org/package=cryptor)
+[![Travis-CI Build Status](https://travis-ci.org/blairj09/cryptor.svg?branch=master)](https://travis-ci.org/blairj09/cryptor) [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github//blairj09/cryptor/?branch=master&svg=true)](https://ci.appveyor.com/project/blairj09/cryptor) [![Coverage status](https://codecov.io/gh/blairj09/cryptor/branch/master/graph/badge.svg)](https://codecov.io/github/blairj09/cryptor?branch=master) [![CRAN status](https://www.r-pkg.org/badges/version/cryptor)](https://cran.r-project.org/package=cryptor) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
 `cryptor` provides a basic wrapper around the public API provided by [CryptoCompare](https://www.cryptocompare.com). CryptoCompare has provided a very comprehensive [public cryptocurrency API](https://min-api.cryptocompare.com). This package strives to create a clean and intuitive R interface for that API.
 
@@ -75,19 +75,19 @@ There are two main functions for retreiving current price data. `get_price()` si
 ``` r
 get_price(c("BTC", "ETH"), "USD")
 #> # A tibble: 2 x 3
-#>   fromsymbol tosymbol price
-#>   <chr>      <chr>    <dbl>
-#> 1 BTC        USD      9925.
-#> 2 ETH        USD       801.
+#>   fromsymbol tosymbol  price
+#>   <chr>      <chr>     <dbl>
+#> 1 BTC        USD      10370.
+#> 2 ETH        USD        857.
 ```
 
 ``` r
 get_price_details(c("BTC", "ETH"), "USD")
 #> # A tibble: 2 x 29
-#>    type market fromsymbol tosymbol flags price lastupdate         
-#>   <int> <chr>  <chr>      <chr>    <int> <dbl> <dttm>             
-#> 1     5 CCCAGG BTC        USD          4 9925. 2018-02-22 18:30:58
-#> 2     5 CCCAGG ETH        USD          2  801. 2018-02-22 18:30:58
+#>    type market fromsymbol tosymbol flags  price lastupdate         
+#>   <int> <chr>  <chr>      <chr>    <int>  <dbl> <dttm>             
+#> 1     5 CCCAGG BTC        USD          4 10370. 2018-03-01 04:00:06
+#> 2     5 CCCAGG ETH        USD          1   857. 2018-03-01 03:59:57
 #> # ... with 22 more variables: lastvolume <dbl>, lastvolumeto <dbl>,
 #> #   lasttradeid <dbl>, volumeday <dbl>, volumedayto <dbl>,
 #> #   volume24hour <dbl>, volume24hourto <dbl>, openday <dbl>,
@@ -110,12 +110,12 @@ head(btc_price_history)
 #> # A tibble: 6 x 7
 #>   time                close  high   low  open volumefrom  volumeto
 #>   <dttm>              <dbl> <dbl> <dbl> <dbl>      <dbl>     <dbl>
-#> 1 2018-01-23 00:00:00  122.  130.  109.  123.    231021. 27649351.
-#> 2 2018-01-24 00:00:00  138.  146.  117.  122.    322866. 43525209.
-#> 3 2018-01-25 00:00:00  137.  146.  134.  138.    226992. 31562447.
-#> 4 2018-01-26 00:00:00  137.  141.  124.  137.    217251. 28874901.
-#> 5 2018-01-27 00:00:00  141.  143.  134.  137.    118856. 16445792.
-#> 6 2018-01-28 00:00:00  153.  154.  140.  141.    127609. 18775018.
+#> 1 2018-01-30 00:00:00  144.  169. 136.   167.    450127. 67979718.
+#> 2 2018-01-31 00:00:00  146.  147. 131.   144.    266456. 37414174.
+#> 3 2018-02-01 00:00:00  126.  147. 114.   146.    368930. 47844293.
+#> 4 2018-02-02 00:00:00  122.  132.  94.0  126.    700073. 79912243.
+#> 5 2018-02-03 00:00:00  124.  130. 107.   122.    247394. 29901510.
+#> 6 2018-02-04 00:00:00  107.  125.  99.4  124.    304361. 33951028.
 ```
 
 ### Snapshot Data
@@ -139,7 +139,7 @@ names(btc_snapshot)
 #> [23] "difficulty_adjustment"         "block_reward_reduction"       
 #> [25] "algorithm"                     "proof_type"                   
 #> [27] "start_date"                    "twitter"                      
-#> [29] "affiliate_url"                 "website"                      
+#> [29] "website_url"                   "website"                      
 #> [31] "last_block_explorer_update_ts" "block_number"                 
 #> [33] "block_time"                    "net_hashes_per_second"        
 #> [35] "total_coins_mined"             "previous_total_coins_mined"   
@@ -153,17 +153,17 @@ get_pair_snapshot("BTC", "ETH")
 #> # A tibble: 1 x 6
 #>   algorithm proof_type block_number net_hashes_per_second total_coins_min…
 #>   <chr>     <chr>             <int>                 <dbl>            <int>
-#> 1 SHA256    PoW              510434          21528020746.         16880412
+#> 1 SHA256    PoW              511409          21528020746.         16892612
 #> # ... with 1 more variable: block_reward <dbl>
 #> 
 #> $aggregated_data
 #> # A tibble: 1 x 21
 #>    type market fromsymbol tosymbol flags price lastupdate         
 #>   <int> <chr>  <chr>      <chr>    <int> <dbl> <dttm>             
-#> 1     5 CCCAGG BTC        ETH          1  12.4 2018-02-22 17:55:53
+#> 1     5 CCCAGG BTC        ETH          1  12.5 2018-03-01 03:54:49
 #> # ... with 14 more variables: lastvolume <dbl>, lastvolumeto <dbl>,
-#> #   lasttradeid <int>, volumeday <dbl>, volumedayto <dbl>,
-#> #   volume24hour <dbl>, volume24hourto <dbl>, openday <dbl>,
+#> #   lasttradeid <dbl>, volumeday <dbl>, volumedayto <dbl>,
+#> #   volume24hour <dbl>, volume24hourto <dbl>, openday <int>,
 #> #   highday <dbl>, lowday <dbl>, open24hour <dbl>, high24hour <dbl>,
 #> #   low24hour <dbl>, lastmarket <chr>
 #> 
@@ -171,8 +171,8 @@ get_pair_snapshot("BTC", "ETH")
 #> # A tibble: 2 x 15
 #>    type market        fromsymbol tosymbol flags price lastupdate         
 #>   <int> <chr>         <chr>      <chr>    <int> <dbl> <dttm>             
-#> 1     2 Bleutrade     BTC        ETH          2  11.4 2018-02-22 17:38:54
-#> 2     2 LocalBitcoins BTC        ETH          1  12.6 2018-02-22 17:55:53
+#> 1     2 Bleutrade     BTC        ETH          1  12.5 2018-03-01 03:54:49
+#> 2     2 LocalBitcoins BTC        ETH          1  12.4 2018-03-01 01:17:41
 #> # ... with 8 more variables: lastvolume <dbl>, lastvolumeto <dbl>,
 #> #   lasttradeid <dbl>, volume24hour <dbl>, volume24hourto <dbl>,
 #> #   open24hour <dbl>, high24hour <dbl>, low24hour <dbl>
@@ -195,68 +195,68 @@ str(eth_social_stats)
 #>   ..$ url           : chr [1:10] "/coins/eth/" "/coins/xrp/" "/coins/ltc/" "/coins/iot/" ...
 #>   ..$ following_type: int [1:10] 1 1 1 1 1 1 1 1 1 1
 #>  $ cryptopian_followers  :Classes 'tbl_df', 'tbl' and 'data.frame':  11 obs. of  5 variables:
-#>   ..$ id       : int [1:11] 724483 782878 473900 783342 783319 757175 783299 739446 737275 554094 ...
-#>   ..$ name     : chr [1:11] "jehad_aqel" "mokomoko0922" "bob.ravet" "rim-72" ...
-#>   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/724483/fdfa5856-b311-4cac-b8ab-99db201d2064.jpg" "https://images.cryptocompare.com/782878/28fcec91-f39b-4f14-93ec-fa7eddc0322b.jpg" "https://images.cryptocompare.com/473900/c99b3d50-5d24-4bc3-ad4f-27149822a6a1.jpg" "https://images.cryptocompare.com/783342/73460816-ab68-4986-8e3c-3d8e15c9a4fb.jpg" ...
-#>   ..$ url      : chr [1:11] "/profile/jehad_aqel/" "/profile/mokomoko0922/" "/profile/bob.ravet/" "/profile/rim-72/" ...
+#>   ..$ id       : int [1:11] 542859 787925 607981 793225 721781 793179 793172 669752 793138 793135 ...
+#>   ..$ name     : chr [1:11] "captainbutters00" "johansistemas15" "rodrigo.gallego" "yosukechiba0830" ...
+#>   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/542859/63929c86-be0f-47fb-939b-b146398afef3.jpg" "https://images.cryptocompare.com/787925/f35f3d6f-571c-49f7-bbfa-1e54b2f7b1d5.jpg" "https://images.cryptocompare.com/607981/50114a79-d8f0-4b7f-84f3-c4983045d0f5.jpg" "https://images.cryptocompare.com/793225/cee8d490-cbf8-4f78-adfa-eae9b1868f90.jpg" ...
+#>   ..$ url      : chr [1:11] "/profile/captainbutters00/" "/profile/johansistemas15/" "/profile/rodrigo.gallego/" "/profile/yosukechiba0830/" ...
 #>   ..$ type     : chr [1:11] "Cryptopian" "Cryptopian" "Cryptopian" "Cryptopian" ...
 #>  $ page_views            :Classes 'tbl_df', 'tbl' and 'data.frame':  8 obs. of  2 variables:
 #>   ..$ page : chr [1:8] "overview" "markets" "analysis" "charts" ...
-#>   ..$ views: int [1:8] 14190712 1017115 668880 4608587 430215 50035 2971939 41661
+#>   ..$ views: int [1:8] 14516080 1036969 679512 4779151 440171 50035 3089085 42485
 #>  $ crypto_compare_summary:Classes 'tbl_df', 'tbl' and 'data.frame':  1 obs. of  5 variables:
-#>   ..$ points    : int 3414260
-#>   ..$ followers : int 52144
-#>   ..$ posts     : int 46280
-#>   ..$ comments  : int 95366
-#>   ..$ page_views: int 23979144
+#>   ..$ points    : int 3490290
+#>   ..$ followers : int 52665
+#>   ..$ posts     : int 47523
+#>   ..$ comments  : int 98559
+#>   ..$ page_views: int 24633488
 #>  $ social_media          :List of 3
 #>   ..$ Twitter :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  9 variables:
 #>   .. ..$ following       : int 127
 #>   .. ..$ account_creation: int 1313643968
 #>   .. ..$ name            : chr "Bitcoin"
-#>   .. ..$ lists           : int 6339
-#>   .. ..$ statuses        : int 19523
-#>   .. ..$ favourites      : int 232
-#>   .. ..$ followers       : int 783768
+#>   .. ..$ lists           : int 6358
+#>   .. ..$ statuses        : int 19537
+#>   .. ..$ favourites      : int 241
+#>   .. ..$ followers       : int 792601
 #>   .. ..$ link            : chr "https://twitter.com/bitcoin"
-#>   .. ..$ points          : int 815482
+#>   .. ..$ points          : int 824410
 #>   ..$ Reddit  :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  10 variables:
-#>   .. ..$ posts_per_hour    : num 17.3
-#>   .. ..$ comments_per_hour : num 310
-#>   .. ..$ posts_per_day     : num 415
-#>   .. ..$ comments_per_day  : num 7448
+#>   .. ..$ posts_per_hour    : num 11.1
+#>   .. ..$ comments_per_hour : num 211
+#>   .. ..$ posts_per_day     : num 266
+#>   .. ..$ comments_per_day  : num 5056
 #>   .. ..$ name              : chr "Bitcoin"
 #>   .. ..$ link              : chr "https://www.reddit.com/r/bitcoin/"
-#>   .. ..$ active_users      : int 9466
+#>   .. ..$ active_users      : int 8737
 #>   .. ..$ community_creation: int 1284042626
-#>   .. ..$ subscribers       : int 748671
-#>   .. ..$ points            : int 791965
+#>   .. ..$ subscribers       : int 755392
+#>   .. ..$ points            : int 791714
 #>   ..$ Facebook:Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  6 variables:
-#>   .. ..$ likes        : int 37225
+#>   .. ..$ likes        : int 37286
 #>   .. ..$ link         : chr "https://www.facebook.com/bitcoins/"
 #>   .. ..$ is_closed    : chr "false"
-#>   .. ..$ talking_about: int 195
+#>   .. ..$ talking_about: int 163
 #>   .. ..$ name         : chr "Bitcoin P2P Cryptocurrency"
-#>   .. ..$ points       : int 37225
+#>   .. ..$ points       : int 37286
 #>  $ repo_summary          :Classes 'tbl_df', 'tbl' and 'data.frame':  4 obs. of  18 variables:
-#>   ..$ created_at         : int [1:4] 1292771803 1384835603 1363239994 1304525025
-#>   ..$ open_total_issues  : int [1:4] 881 227 28 26
+#>   ..$ created_at         : int [1:4] 1384835603 1363239994 1292771803 1304525025
+#>   ..$ open_total_issues  : int [1:4] 224 28 902 25
 #>   ..$ parent             : logi [1:4] NA NA NA NA
-#>   ..$ size               : int [1:4] 83035 16908 1174 3003
-#>   ..$ closed_total_issues: int [1:4] 139 1288 982 11490
-#>   ..$ stars              : int [1:4] 27977 2047 753 2396
-#>   ..$ last_update        : POSIXct[1:4], format: "2018-02-22 17:48:57" ...
-#>   ..$ forks              : int [1:4] 16592 1351 265 781
-#>   ..$ url                : chr [1:4] "https://github.com/bitcoin/bitcoin" "https://github.com/bitcoinj/bitcoinj" "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoinjs/bitcoinjs-lib"
-#>   ..$ closed_issues      : int [1:4] 46 621 399 3139
-#>   ..$ closed_pull_issues : int [1:4] 93 667 583 8351
+#>   ..$ size               : int [1:4] 17220 1174 85755 3003
+#>   ..$ closed_total_issues: int [1:4] 139 1294 987 11528
+#>   ..$ stars              : int [1:4] 2088 761 28491 2420
+#>   ..$ last_update        : POSIXct[1:4], format: "2018-03-01 02:59:31" ...
+#>   ..$ forks              : int [1:4] 1372 267 16888 786
+#>   ..$ url                : chr [1:4] "https://github.com/bitcoinj/bitcoinj" "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoin/bitcoin" "https://github.com/bitcoinjs/bitcoinjs-lib"
+#>   ..$ closed_issues      : int [1:4] 46 621 404 3154
+#>   ..$ closed_pull_issues : int [1:4] 93 673 583 8374
 #>   ..$ fork               : chr [1:4] "false" "false" "false" "false"
-#>   ..$ last_push          : int [1:4] 1519317683 1519315403 1519197806 1519115258
+#>   ..$ last_push          : int [1:4] 1519839412 1519197806 1519873006 1519115258
 #>   ..$ source             : logi [1:4] NA NA NA NA
-#>   ..$ open_pull_issues   : int [1:4] 27 13 8 282
-#>   ..$ language           : chr [1:4] "C++" "Java" "Python" "JavaScript"
-#>   ..$ subscribers        : int [1:4] 2999 274 95 159
-#>   ..$ open_issues        : int [1:4] 15 200 18 599
+#>   ..$ open_pull_issues   : int [1:4] 13 24 8 295
+#>   ..$ language           : chr [1:4] "Java" "Python" "C++" "JavaScript"
+#>   ..$ subscribers        : int [1:4] 275 96 3036 162
+#>   ..$ open_issues        : int [1:4] 15 200 17 607
 ```
 
 ### Pairs Data
@@ -267,13 +267,13 @@ Details about top cryptocurrency pairs (by volume) can be retrived using `get_to
 # Top ETH pairs
 get_top_pairs("ETH")
 #> # A tibble: 5 x 5
-#>   exchange from_symbol to_symbol volume24h  volume24h_to
-#>   <chr>    <chr>       <chr>         <dbl>         <dbl>
-#> 1 CCCAGG   ETH         USD         441126.    364423650.
-#> 2 CCCAGG   ETH         BTC         403625.        32415.
-#> 3 CCCAGG   ETH         USDT        282725.    233832543.
-#> 4 CCCAGG   ETH         KRW         111665. 110943991296.
-#> 5 CCCAGG   ETH         EUR          86928.     58057236.
+#>   exchange from_symbol to_symbol volume24h volume24h_to
+#>   <chr>    <chr>       <chr>         <dbl>        <dbl>
+#> 1 CCCAGG   ETH         BTC         450635.       36974.
+#> 2 CCCAGG   ETH         USD         223076.   193196381.
+#> 3 CCCAGG   ETH         USDT        198532.   172220950.
+#> 4 CCCAGG   ETH         KRW          45794. 44925496588.
+#> 5 CCCAGG   ETH         EUR          38490.    27270070.
 ```
 
 ### API Limits
@@ -302,6 +302,6 @@ get_api_limit("hour")
 #> # A tibble: 2 x 5
 #>   call_metric histo  price  news strict
 #>   <chr>       <int>  <int> <int>  <int>
-#> 1 calls_made      6     20     2      1
-#> 2 calls_left   7994 149980  2998    499
+#> 1 calls_made      1      5     0      0
+#> 2 calls_left   7999 149995  3000    500
 ```

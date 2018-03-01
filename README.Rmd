@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 [![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github//blairj09/cryptor/?branch=master&svg=true)](https://ci.appveyor.com/project/blairj09/cryptor)
 [![Coverage status](https://codecov.io/gh/blairj09/cryptor/branch/master/graph/badge.svg)](https://codecov.io/github/blairj09/cryptor?branch=master)
 [![CRAN status](https://www.r-pkg.org/badges/version/cryptor)](https://cran.r-project.org/package=cryptor)
+[![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
 
 `cryptor` provides a basic wrapper around the public API provided by [CryptoCompare](https://www.cryptocompare.com). CryptoCompare has provided a very comprehensive [public cryptocurrency API](https://min-api.cryptocompare.com). This package strives to create a clean and intuitive R interface for that API.
 
