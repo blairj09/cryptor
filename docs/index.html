@@ -130,16 +130,16 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <p>There are two main functions for retreiving current price data. <code><a href="reference/get_price.html">get_price()</a></code> simply returns the price of the requested coins. <code><a href="reference/get_price_details.html">get_price_details()</a></code> returns current price data along with open, close, and other 24 hour price statistics. Price functions take two main parameters: <code>fsym(s)</code> and <code>tsym(s)</code>. These parameters specify the requested coin(s) (<code>fsym(s)</code>) and the currency the price is reported in (<code>tsym(s)</code>). The following examples illustrate getting price data for Bitcoin (BTC) and Etherium (ETH) in terms of US Dollars (USD).</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/get_price.html">get_price</a></span>(<span class="kw">c</span>(<span class="st">"BTC"</span>, <span class="st">"ETH"</span>), <span class="st">"USD"</span>)
 <span class="co">#&gt; # A tibble: 2 x 3</span>
-<span class="co">#&gt;   fromsymbol tosymbol price</span>
-<span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;    &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 BTC        USD      9918.</span>
-<span class="co">#&gt; 2 ETH        USD       800.</span></code></pre></div>
+<span class="co">#&gt;   fromsymbol tosymbol  price</span>
+<span class="co">#&gt;   &lt;chr&gt;      &lt;chr&gt;     &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 BTC        USD      10442.</span>
+<span class="co">#&gt; 2 ETH        USD        861.</span></code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="reference/get_price_details.html">get_price_details</a></span>(<span class="kw">c</span>(<span class="st">"BTC"</span>, <span class="st">"ETH"</span>), <span class="st">"USD"</span>)
 <span class="co">#&gt; # A tibble: 2 x 29</span>
-<span class="co">#&gt;    type market fromsymbol tosymbol flags price lastupdate         </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;dttm&gt;             </span>
-<span class="co">#&gt; 1     5 CCCAGG BTC        USD          4 9918. 2018-02-22 18:31:20</span>
-<span class="co">#&gt; 2     5 CCCAGG ETH        USD          4  800. 2018-02-22 18:31:19</span>
+<span class="co">#&gt;    type market fromsymbol tosymbol flags  price lastupdate         </span>
+<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;    &lt;int&gt;  &lt;dbl&gt; &lt;dttm&gt;             </span>
+<span class="co">#&gt; 1     5 CCCAGG BTC        USD          4 10442. 2018-03-01 04:25:08</span>
+<span class="co">#&gt; 2     5 CCCAGG ETH        USD          4   861. 2018-03-01 04:25:08</span>
 <span class="co">#&gt; # ... with 22 more variables: lastvolume &lt;dbl&gt;, lastvolumeto &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   lasttradeid &lt;int&gt;, volumeday &lt;dbl&gt;, volumedayto &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   volume24hour &lt;dbl&gt;, volume24hourto &lt;dbl&gt;, openday &lt;dbl&gt;,</span>
@@ -159,12 +159,12 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <span class="co">#&gt; # A tibble: 6 x 7</span>
 <span class="co">#&gt;   time                close  high   low  open volumefrom  volumeto</span>
 <span class="co">#&gt;   &lt;dttm&gt;              &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 2018-01-23 00:00:00  122.  130.  109.  123.    231021. 27649351.</span>
-<span class="co">#&gt; 2 2018-01-24 00:00:00  138.  146.  117.  122.    322866. 43525209.</span>
-<span class="co">#&gt; 3 2018-01-25 00:00:00  137.  146.  134.  138.    226992. 31562447.</span>
-<span class="co">#&gt; 4 2018-01-26 00:00:00  137.  141.  124.  137.    217251. 28874901.</span>
-<span class="co">#&gt; 5 2018-01-27 00:00:00  141.  143.  134.  137.    118856. 16445792.</span>
-<span class="co">#&gt; 6 2018-01-28 00:00:00  153.  154.  140.  141.    127609. 18775018.</span></code></pre></div>
+<span class="co">#&gt; 1 2018-01-30 00:00:00  144.  169. 136.   167.    450127. 67979718.</span>
+<span class="co">#&gt; 2 2018-01-31 00:00:00  146.  147. 131.   144.    266456. 37414174.</span>
+<span class="co">#&gt; 3 2018-02-01 00:00:00  126.  147. 114.   146.    368930. 47844293.</span>
+<span class="co">#&gt; 4 2018-02-02 00:00:00  122.  132.  94.0  126.    700073. 79912243.</span>
+<span class="co">#&gt; 5 2018-02-03 00:00:00  124.  130. 107.   122.    247394. 29901510.</span>
+<span class="co">#&gt; 6 2018-02-04 00:00:00  107.  125.  99.4  124.    304361. 33951028.</span></code></pre></div>
 </div>
 <div id="snapshot-data" class="section level3">
 <h3 class="hasAnchor">
@@ -186,7 +186,7 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <span class="co">#&gt; [23] "difficulty_adjustment"         "block_reward_reduction"       </span>
 <span class="co">#&gt; [25] "algorithm"                     "proof_type"                   </span>
 <span class="co">#&gt; [27] "start_date"                    "twitter"                      </span>
-<span class="co">#&gt; [29] "affiliate_url"                 "website"                      </span>
+<span class="co">#&gt; [29] "website_url"                   "website"                      </span>
 <span class="co">#&gt; [31] "last_block_explorer_update_ts" "block_number"                 </span>
 <span class="co">#&gt; [33] "block_time"                    "net_hashes_per_second"        </span>
 <span class="co">#&gt; [35] "total_coins_mined"             "previous_total_coins_mined"   </span>
@@ -197,17 +197,17 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <span class="co">#&gt; # A tibble: 1 x 6</span>
 <span class="co">#&gt;   algorithm proof_type block_number net_hashes_per_second total_coins_min…</span>
 <span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;             &lt;int&gt;                 &lt;dbl&gt;            &lt;int&gt;</span>
-<span class="co">#&gt; 1 SHA256    PoW              510434          21528020746.         16880412</span>
+<span class="co">#&gt; 1 SHA256    PoW              511412          21528020746.         16892625</span>
 <span class="co">#&gt; # ... with 1 more variable: block_reward &lt;dbl&gt;</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $aggregated_data</span>
 <span class="co">#&gt; # A tibble: 1 x 21</span>
 <span class="co">#&gt;    type market fromsymbol tosymbol flags price lastupdate         </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;      &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;dttm&gt;             </span>
-<span class="co">#&gt; 1     5 CCCAGG BTC        ETH          1  12.4 2018-02-22 17:55:53</span>
+<span class="co">#&gt; 1     5 CCCAGG BTC        ETH          4  12.5 2018-03-01 03:54:49</span>
 <span class="co">#&gt; # ... with 14 more variables: lastvolume &lt;dbl&gt;, lastvolumeto &lt;dbl&gt;,</span>
-<span class="co">#&gt; #   lasttradeid &lt;int&gt;, volumeday &lt;dbl&gt;, volumedayto &lt;dbl&gt;,</span>
-<span class="co">#&gt; #   volume24hour &lt;dbl&gt;, volume24hourto &lt;dbl&gt;, openday &lt;dbl&gt;,</span>
+<span class="co">#&gt; #   lasttradeid &lt;dbl&gt;, volumeday &lt;dbl&gt;, volumedayto &lt;dbl&gt;,</span>
+<span class="co">#&gt; #   volume24hour &lt;dbl&gt;, volume24hourto &lt;dbl&gt;, openday &lt;int&gt;,</span>
 <span class="co">#&gt; #   highday &lt;dbl&gt;, lowday &lt;dbl&gt;, open24hour &lt;dbl&gt;, high24hour &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   low24hour &lt;dbl&gt;, lastmarket &lt;chr&gt;</span>
 <span class="co">#&gt; </span>
@@ -215,8 +215,8 @@ devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocument
 <span class="co">#&gt; # A tibble: 2 x 15</span>
 <span class="co">#&gt;    type market        fromsymbol tosymbol flags price lastupdate         </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;         &lt;chr&gt;      &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt; &lt;dttm&gt;             </span>
-<span class="co">#&gt; 1     2 Bleutrade     BTC        ETH          2  11.4 2018-02-22 17:38:54</span>
-<span class="co">#&gt; 2     2 LocalBitcoins BTC        ETH          1  12.6 2018-02-22 17:55:53</span>
+<span class="co">#&gt; 1     2 Bleutrade     BTC        ETH          1  12.5 2018-03-01 03:54:49</span>
+<span class="co">#&gt; 2     2 LocalBitcoins BTC        ETH          1  12.4 2018-03-01 01:17:41</span>
 <span class="co">#&gt; # ... with 8 more variables: lastvolume &lt;dbl&gt;, lastvolumeto &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   lasttradeid &lt;dbl&gt;, volume24hour &lt;dbl&gt;, volume24hourto &lt;dbl&gt;,</span>
 <span class="co">#&gt; #   open24hour &lt;dbl&gt;, high24hour &lt;dbl&gt;, low24hour &lt;dbl&gt;</span></code></pre></div>
@@ -237,68 +237,68 @@ eth_social_stats &lt;-<span class="st"> </span><span class="kw"><a href="referen
 <span class="co">#&gt;   ..$ url           : chr [1:10] "/coins/eth/" "/coins/xrp/" "/coins/ltc/" "/coins/iot/" ...</span>
 <span class="co">#&gt;   ..$ following_type: int [1:10] 1 1 1 1 1 1 1 1 1 1</span>
 <span class="co">#&gt;  $ cryptopian_followers  :Classes 'tbl_df', 'tbl' and 'data.frame':  11 obs. of  5 variables:</span>
-<span class="co">#&gt;   ..$ id       : int [1:11] 724483 782878 473900 783342 783319 757175 783299 739446 737275 554094 ...</span>
-<span class="co">#&gt;   ..$ name     : chr [1:11] "jehad_aqel" "mokomoko0922" "bob.ravet" "rim-72" ...</span>
-<span class="co">#&gt;   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/724483/fdfa5856-b311-4cac-b8ab-99db201d2064.jpg" "https://images.cryptocompare.com/782878/28fcec91-f39b-4f14-93ec-fa7eddc0322b.jpg" "https://images.cryptocompare.com/473900/c99b3d50-5d24-4bc3-ad4f-27149822a6a1.jpg" "https://images.cryptocompare.com/783342/73460816-ab68-4986-8e3c-3d8e15c9a4fb.jpg" ...</span>
-<span class="co">#&gt;   ..$ url      : chr [1:11] "/profile/jehad_aqel/" "/profile/mokomoko0922/" "/profile/bob.ravet/" "/profile/rim-72/" ...</span>
+<span class="co">#&gt;   ..$ id       : int [1:11] 793242 542859 787925 607981 793225 721781 793179 793172 669752 793138 ...</span>
+<span class="co">#&gt;   ..$ name     : chr [1:11] "zhanglunkai1013" "captainbutters00" "johansistemas15" "rodrigo.gallego" ...</span>
+<span class="co">#&gt;   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/793242/993f8fd6-2de9-4a47-9c98-fda824300c05.jpg" "https://images.cryptocompare.com/542859/63929c86-be0f-47fb-939b-b146398afef3.jpg" "https://images.cryptocompare.com/787925/f35f3d6f-571c-49f7-bbfa-1e54b2f7b1d5.jpg" "https://images.cryptocompare.com/607981/50114a79-d8f0-4b7f-84f3-c4983045d0f5.jpg" ...</span>
+<span class="co">#&gt;   ..$ url      : chr [1:11] "/profile/zhanglunkai1013/" "/profile/captainbutters00/" "/profile/johansistemas15/" "/profile/rodrigo.gallego/" ...</span>
 <span class="co">#&gt;   ..$ type     : chr [1:11] "Cryptopian" "Cryptopian" "Cryptopian" "Cryptopian" ...</span>
 <span class="co">#&gt;  $ page_views            :Classes 'tbl_df', 'tbl' and 'data.frame':  8 obs. of  2 variables:</span>
 <span class="co">#&gt;   ..$ page : chr [1:8] "overview" "markets" "analysis" "charts" ...</span>
-<span class="co">#&gt;   ..$ views: int [1:8] 14190712 1017115 668880 4608587 430215 50035 2971939 41661</span>
+<span class="co">#&gt;   ..$ views: int [1:8] 14516361 1036994 679524 4779403 440181 50035 3089168 42486</span>
 <span class="co">#&gt;  $ crypto_compare_summary:Classes 'tbl_df', 'tbl' and 'data.frame':  1 obs. of  5 variables:</span>
-<span class="co">#&gt;   ..$ points    : int 3414260</span>
-<span class="co">#&gt;   ..$ followers : int 52144</span>
-<span class="co">#&gt;   ..$ posts     : int 46280</span>
-<span class="co">#&gt;   ..$ comments  : int 95366</span>
-<span class="co">#&gt;   ..$ page_views: int 23979144</span>
+<span class="co">#&gt;   ..$ points    : int 3490360</span>
+<span class="co">#&gt;   ..$ followers : int 52666</span>
+<span class="co">#&gt;   ..$ posts     : int 47524</span>
+<span class="co">#&gt;   ..$ comments  : int 98561</span>
+<span class="co">#&gt;   ..$ page_views: int 24634152</span>
 <span class="co">#&gt;  $ social_media          :List of 3</span>
 <span class="co">#&gt;   ..$ Twitter :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  9 variables:</span>
 <span class="co">#&gt;   .. ..$ following       : int 127</span>
 <span class="co">#&gt;   .. ..$ account_creation: int 1313643968</span>
 <span class="co">#&gt;   .. ..$ name            : chr "Bitcoin"</span>
-<span class="co">#&gt;   .. ..$ lists           : int 6339</span>
-<span class="co">#&gt;   .. ..$ statuses        : int 19523</span>
-<span class="co">#&gt;   .. ..$ favourites      : int 232</span>
-<span class="co">#&gt;   .. ..$ followers       : int 783768</span>
+<span class="co">#&gt;   .. ..$ lists           : int 6362</span>
+<span class="co">#&gt;   .. ..$ statuses        : int 19537</span>
+<span class="co">#&gt;   .. ..$ favourites      : int 241</span>
+<span class="co">#&gt;   .. ..$ followers       : int 792646</span>
 <span class="co">#&gt;   .. ..$ link            : chr "https://twitter.com/bitcoin"</span>
-<span class="co">#&gt;   .. ..$ points          : int 815482</span>
+<span class="co">#&gt;   .. ..$ points          : int 824475</span>
 <span class="co">#&gt;   ..$ Reddit  :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  10 variables:</span>
-<span class="co">#&gt;   .. ..$ posts_per_hour    : num 17.3</span>
-<span class="co">#&gt;   .. ..$ comments_per_hour : num 310</span>
-<span class="co">#&gt;   .. ..$ posts_per_day     : num 415</span>
-<span class="co">#&gt;   .. ..$ comments_per_day  : num 7448</span>
+<span class="co">#&gt;   .. ..$ posts_per_hour    : num 11.2</span>
+<span class="co">#&gt;   .. ..$ comments_per_hour : num 157</span>
+<span class="co">#&gt;   .. ..$ posts_per_day     : num 270</span>
+<span class="co">#&gt;   .. ..$ comments_per_day  : num 3766</span>
 <span class="co">#&gt;   .. ..$ name              : chr "Bitcoin"</span>
 <span class="co">#&gt;   .. ..$ link              : chr "https://www.reddit.com/r/bitcoin/"</span>
-<span class="co">#&gt;   .. ..$ active_users      : int 9466</span>
+<span class="co">#&gt;   .. ..$ active_users      : int 9370</span>
 <span class="co">#&gt;   .. ..$ community_creation: int 1284042626</span>
-<span class="co">#&gt;   .. ..$ subscribers       : int 748671</span>
-<span class="co">#&gt;   .. ..$ points            : int 791965</span>
+<span class="co">#&gt;   .. ..$ subscribers       : int 755430</span>
+<span class="co">#&gt;   .. ..$ points            : int 791072</span>
 <span class="co">#&gt;   ..$ Facebook:Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  6 variables:</span>
-<span class="co">#&gt;   .. ..$ likes        : int 37225</span>
+<span class="co">#&gt;   .. ..$ likes        : int 37288</span>
 <span class="co">#&gt;   .. ..$ link         : chr "https://www.facebook.com/bitcoins/"</span>
 <span class="co">#&gt;   .. ..$ is_closed    : chr "false"</span>
-<span class="co">#&gt;   .. ..$ talking_about: int 195</span>
+<span class="co">#&gt;   .. ..$ talking_about: int 163</span>
 <span class="co">#&gt;   .. ..$ name         : chr "Bitcoin P2P Cryptocurrency"</span>
-<span class="co">#&gt;   .. ..$ points       : int 37225</span>
+<span class="co">#&gt;   .. ..$ points       : int 37288</span>
 <span class="co">#&gt;  $ repo_summary          :Classes 'tbl_df', 'tbl' and 'data.frame':  4 obs. of  18 variables:</span>
-<span class="co">#&gt;   ..$ created_at         : int [1:4] 1292771803 1384835603 1363239994 1304525025</span>
-<span class="co">#&gt;   ..$ open_total_issues  : int [1:4] 881 227 28 26</span>
+<span class="co">#&gt;   ..$ created_at         : int [1:4] 1363239994 1384835603 1304525025 1292771803</span>
+<span class="co">#&gt;   ..$ open_total_issues  : int [1:4] 28 224 25 902</span>
 <span class="co">#&gt;   ..$ parent             : logi [1:4] NA NA NA NA</span>
-<span class="co">#&gt;   ..$ size               : int [1:4] 83035 16908 1174 3003</span>
-<span class="co">#&gt;   ..$ closed_total_issues: int [1:4] 139 1288 982 11490</span>
-<span class="co">#&gt;   ..$ stars              : int [1:4] 27977 2047 753 2396</span>
-<span class="co">#&gt;   ..$ last_update        : POSIXct[1:4], format: "2018-02-22 17:48:57" ...</span>
-<span class="co">#&gt;   ..$ forks              : int [1:4] 16592 1351 265 781</span>
-<span class="co">#&gt;   ..$ url                : chr [1:4] "https://github.com/bitcoin/bitcoin" "https://github.com/bitcoinj/bitcoinj" "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoinjs/bitcoinjs-lib"</span>
-<span class="co">#&gt;   ..$ closed_issues      : int [1:4] 46 621 399 3139</span>
-<span class="co">#&gt;   ..$ closed_pull_issues : int [1:4] 93 667 583 8351</span>
+<span class="co">#&gt;   ..$ size               : int [1:4] 1174 17220 3003 85755</span>
+<span class="co">#&gt;   ..$ closed_total_issues: int [1:4] 139 1294 11528 987</span>
+<span class="co">#&gt;   ..$ stars              : int [1:4] 761 2089 2420 28498</span>
+<span class="co">#&gt;   ..$ last_update        : POSIXct[1:4], format: "2018-02-27 14:56:00" ...</span>
+<span class="co">#&gt;   ..$ forks              : int [1:4] 267 1372 786 16892</span>
+<span class="co">#&gt;   ..$ url                : chr [1:4] "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoinj/bitcoinj" "https://github.com/bitcoinjs/bitcoinjs-lib" "https://github.com/bitcoin/bitcoin"</span>
+<span class="co">#&gt;   ..$ closed_issues      : int [1:4] 46 621 3154 404</span>
+<span class="co">#&gt;   ..$ closed_pull_issues : int [1:4] 93 673 8374 583</span>
 <span class="co">#&gt;   ..$ fork               : chr [1:4] "false" "false" "false" "false"</span>
-<span class="co">#&gt;   ..$ last_push          : int [1:4] 1519317683 1519315403 1519197806 1519115258</span>
+<span class="co">#&gt;   ..$ last_push          : int [1:4] 1519197806 1519839412 1519115258 1519873006</span>
 <span class="co">#&gt;   ..$ source             : logi [1:4] NA NA NA NA</span>
-<span class="co">#&gt;   ..$ open_pull_issues   : int [1:4] 27 13 8 282</span>
-<span class="co">#&gt;   ..$ language           : chr [1:4] "C++" "Java" "Python" "JavaScript"</span>
-<span class="co">#&gt;   ..$ subscribers        : int [1:4] 2999 274 95 159</span>
-<span class="co">#&gt;   ..$ open_issues        : int [1:4] 15 200 18 599</span></code></pre></div>
+<span class="co">#&gt;   ..$ open_pull_issues   : int [1:4] 13 24 295 8</span>
+<span class="co">#&gt;   ..$ language           : chr [1:4] "Python" "Java" "JavaScript" "C++"</span>
+<span class="co">#&gt;   ..$ subscribers        : int [1:4] 96 275 162 3036</span>
+<span class="co">#&gt;   ..$ open_issues        : int [1:4] 15 200 607 17</span></code></pre></div>
 </div>
 <div id="pairs-data" class="section level3">
 <h3 class="hasAnchor">
@@ -307,13 +307,13 @@ eth_social_stats &lt;-<span class="st"> </span><span class="kw"><a href="referen
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Top ETH pairs</span>
 <span class="kw"><a href="reference/get_top_pairs.html">get_top_pairs</a></span>(<span class="st">"ETH"</span>)
 <span class="co">#&gt; # A tibble: 5 x 5</span>
-<span class="co">#&gt;   exchange from_symbol to_symbol volume24h  volume24h_to</span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;         &lt;dbl&gt;         &lt;dbl&gt;</span>
-<span class="co">#&gt; 1 CCCAGG   ETH         USD         441126.    364423650.</span>
-<span class="co">#&gt; 2 CCCAGG   ETH         BTC         403625.        32415.</span>
-<span class="co">#&gt; 3 CCCAGG   ETH         USDT        282725.    233832543.</span>
-<span class="co">#&gt; 4 CCCAGG   ETH         KRW         111665. 110943991296.</span>
-<span class="co">#&gt; 5 CCCAGG   ETH         EUR          86928.     58057236.</span></code></pre></div>
+<span class="co">#&gt;   exchange from_symbol to_symbol volume24h volume24h_to</span>
+<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;         &lt;dbl&gt;        &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 CCCAGG   ETH         BTC         444023.       36448.</span>
+<span class="co">#&gt; 2 CCCAGG   ETH         USD         218294.   188899250.</span>
+<span class="co">#&gt; 3 CCCAGG   ETH         USDT        194037.   168134922.</span>
+<span class="co">#&gt; 4 CCCAGG   ETH         KRW          43634. 42774963078.</span>
+<span class="co">#&gt; 5 CCCAGG   ETH         EUR          38286.    27117875.</span></code></pre></div>
 </div>
 <div id="api-limits" class="section level3">
 <h3 class="hasAnchor">
@@ -332,16 +332,16 @@ eth_social_stats &lt;-<span class="st"> </span><span class="kw"><a href="referen
 <span class="co">#&gt; # A tibble: 2 x 5</span>
 <span class="co">#&gt;   call_metric histo price  news strict</span>
 <span class="co">#&gt;   &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1 calls_made      2    10     0      0</span>
-<span class="co">#&gt; 2 calls_left    298   990   100     20</span>
+<span class="co">#&gt; 1 calls_made      1     5     0      0</span>
+<span class="co">#&gt; 2 calls_left    299   995   100     20</span>
 
 <span class="co"># Hour limit</span>
 <span class="kw"><a href="reference/get_api_limit.html">get_api_limit</a></span>(<span class="st">"hour"</span>)
 <span class="co">#&gt; # A tibble: 2 x 5</span>
 <span class="co">#&gt;   call_metric histo  price  news strict</span>
 <span class="co">#&gt;   &lt;chr&gt;       &lt;int&gt;  &lt;int&gt; &lt;int&gt;  &lt;int&gt;</span>
-<span class="co">#&gt; 1 calls_made      7     25     2      1</span>
-<span class="co">#&gt; 2 calls_left   7993 149975  2998    499</span></code></pre></div>
+<span class="co">#&gt; 1 calls_made     11     36     4      2</span>
+<span class="co">#&gt; 2 calls_left   7989 149964  2996    498</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -369,6 +369,7 @@ eth_social_stats &lt;-<span class="st"> </span><span class="kw"><a href="referen
 <li><a href="https://ci.appveyor.com/project/blairj09/cryptor"><img src="https://ci.appveyor.com/api/projects/status/github//blairj09/cryptor/?branch=master&amp;svg=true" alt="AppVeyor Build Status"></a></li>
 <li><a href="https://codecov.io/github/blairj09/cryptor?branch=master"><img src="https://codecov.io/gh/blairj09/cryptor/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
 <li><a href="https://cran.r-project.org/package=cryptor"><img src="https://www.r-pkg.org/badges/version/cryptor" alt="CRAN status"></a></li>
+<li><a href="https://www.tidyverse.org/lifecycle/#experimental"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="lifecycle"></a></li>
 </ul>
 </div>
 

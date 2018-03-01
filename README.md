@@ -77,8 +77,8 @@ get_price(c("BTC", "ETH"), "USD")
 #> # A tibble: 2 x 3
 #>   fromsymbol tosymbol  price
 #>   <chr>      <chr>     <dbl>
-#> 1 BTC        USD      10370.
-#> 2 ETH        USD        857.
+#> 1 BTC        USD      10439.
+#> 2 ETH        USD        861.
 ```
 
 ``` r
@@ -86,10 +86,10 @@ get_price_details(c("BTC", "ETH"), "USD")
 #> # A tibble: 2 x 29
 #>    type market fromsymbol tosymbol flags  price lastupdate         
 #>   <int> <chr>  <chr>      <chr>    <int>  <dbl> <dttm>             
-#> 1     5 CCCAGG BTC        USD          4 10370. 2018-03-01 04:00:06
-#> 2     5 CCCAGG ETH        USD          1   857. 2018-03-01 03:59:57
+#> 1     5 CCCAGG BTC        USD          2 10439. 2018-03-01 04:24:46
+#> 2     5 CCCAGG ETH        USD          4   861. 2018-03-01 04:24:49
 #> # ... with 22 more variables: lastvolume <dbl>, lastvolumeto <dbl>,
-#> #   lasttradeid <dbl>, volumeday <dbl>, volumedayto <dbl>,
+#> #   lasttradeid <int>, volumeday <dbl>, volumedayto <dbl>,
 #> #   volume24hour <dbl>, volume24hourto <dbl>, openday <dbl>,
 #> #   highday <dbl>, lowday <dbl>, open24hour <dbl>, high24hour <dbl>,
 #> #   low24hour <dbl>, lastmarket <chr>, change24hour <dbl>,
@@ -153,14 +153,14 @@ get_pair_snapshot("BTC", "ETH")
 #> # A tibble: 1 x 6
 #>   algorithm proof_type block_number net_hashes_per_second total_coins_min…
 #>   <chr>     <chr>             <int>                 <dbl>            <int>
-#> 1 SHA256    PoW              511409          21528020746.         16892612
+#> 1 SHA256    PoW              511412          21528020746.         16892625
 #> # ... with 1 more variable: block_reward <dbl>
 #> 
 #> $aggregated_data
 #> # A tibble: 1 x 21
 #>    type market fromsymbol tosymbol flags price lastupdate         
 #>   <int> <chr>  <chr>      <chr>    <int> <dbl> <dttm>             
-#> 1     5 CCCAGG BTC        ETH          1  12.5 2018-03-01 03:54:49
+#> 1     5 CCCAGG BTC        ETH          4  12.5 2018-03-01 03:54:49
 #> # ... with 14 more variables: lastvolume <dbl>, lastvolumeto <dbl>,
 #> #   lasttradeid <dbl>, volumeday <dbl>, volumedayto <dbl>,
 #> #   volume24hour <dbl>, volume24hourto <dbl>, openday <int>,
@@ -195,68 +195,68 @@ str(eth_social_stats)
 #>   ..$ url           : chr [1:10] "/coins/eth/" "/coins/xrp/" "/coins/ltc/" "/coins/iot/" ...
 #>   ..$ following_type: int [1:10] 1 1 1 1 1 1 1 1 1 1
 #>  $ cryptopian_followers  :Classes 'tbl_df', 'tbl' and 'data.frame':  11 obs. of  5 variables:
-#>   ..$ id       : int [1:11] 542859 787925 607981 793225 721781 793179 793172 669752 793138 793135 ...
-#>   ..$ name     : chr [1:11] "captainbutters00" "johansistemas15" "rodrigo.gallego" "yosukechiba0830" ...
-#>   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/542859/63929c86-be0f-47fb-939b-b146398afef3.jpg" "https://images.cryptocompare.com/787925/f35f3d6f-571c-49f7-bbfa-1e54b2f7b1d5.jpg" "https://images.cryptocompare.com/607981/50114a79-d8f0-4b7f-84f3-c4983045d0f5.jpg" "https://images.cryptocompare.com/793225/cee8d490-cbf8-4f78-adfa-eae9b1868f90.jpg" ...
-#>   ..$ url      : chr [1:11] "/profile/captainbutters00/" "/profile/johansistemas15/" "/profile/rodrigo.gallego/" "/profile/yosukechiba0830/" ...
+#>   ..$ id       : int [1:11] 793242 542859 787925 607981 793225 721781 793179 793172 669752 793138 ...
+#>   ..$ name     : chr [1:11] "zhanglunkai1013" "captainbutters00" "johansistemas15" "rodrigo.gallego" ...
+#>   ..$ image_url: chr [1:11] "https://images.cryptocompare.com/793242/993f8fd6-2de9-4a47-9c98-fda824300c05.jpg" "https://images.cryptocompare.com/542859/63929c86-be0f-47fb-939b-b146398afef3.jpg" "https://images.cryptocompare.com/787925/f35f3d6f-571c-49f7-bbfa-1e54b2f7b1d5.jpg" "https://images.cryptocompare.com/607981/50114a79-d8f0-4b7f-84f3-c4983045d0f5.jpg" ...
+#>   ..$ url      : chr [1:11] "/profile/zhanglunkai1013/" "/profile/captainbutters00/" "/profile/johansistemas15/" "/profile/rodrigo.gallego/" ...
 #>   ..$ type     : chr [1:11] "Cryptopian" "Cryptopian" "Cryptopian" "Cryptopian" ...
 #>  $ page_views            :Classes 'tbl_df', 'tbl' and 'data.frame':  8 obs. of  2 variables:
 #>   ..$ page : chr [1:8] "overview" "markets" "analysis" "charts" ...
-#>   ..$ views: int [1:8] 14516080 1036969 679512 4779151 440171 50035 3089085 42485
+#>   ..$ views: int [1:8] 14516361 1036994 679524 4779403 440181 50035 3089168 42486
 #>  $ crypto_compare_summary:Classes 'tbl_df', 'tbl' and 'data.frame':  1 obs. of  5 variables:
-#>   ..$ points    : int 3490290
-#>   ..$ followers : int 52665
-#>   ..$ posts     : int 47523
-#>   ..$ comments  : int 98559
-#>   ..$ page_views: int 24633488
+#>   ..$ points    : int 3490360
+#>   ..$ followers : int 52666
+#>   ..$ posts     : int 47524
+#>   ..$ comments  : int 98561
+#>   ..$ page_views: int 24634152
 #>  $ social_media          :List of 3
 #>   ..$ Twitter :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  9 variables:
 #>   .. ..$ following       : int 127
 #>   .. ..$ account_creation: int 1313643968
 #>   .. ..$ name            : chr "Bitcoin"
-#>   .. ..$ lists           : int 6358
+#>   .. ..$ lists           : int 6362
 #>   .. ..$ statuses        : int 19537
 #>   .. ..$ favourites      : int 241
-#>   .. ..$ followers       : int 792601
+#>   .. ..$ followers       : int 792646
 #>   .. ..$ link            : chr "https://twitter.com/bitcoin"
-#>   .. ..$ points          : int 824410
+#>   .. ..$ points          : int 824475
 #>   ..$ Reddit  :Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  10 variables:
-#>   .. ..$ posts_per_hour    : num 11.1
-#>   .. ..$ comments_per_hour : num 211
-#>   .. ..$ posts_per_day     : num 266
-#>   .. ..$ comments_per_day  : num 5056
+#>   .. ..$ posts_per_hour    : num 11.2
+#>   .. ..$ comments_per_hour : num 157
+#>   .. ..$ posts_per_day     : num 270
+#>   .. ..$ comments_per_day  : num 3766
 #>   .. ..$ name              : chr "Bitcoin"
 #>   .. ..$ link              : chr "https://www.reddit.com/r/bitcoin/"
-#>   .. ..$ active_users      : int 8737
+#>   .. ..$ active_users      : int 9370
 #>   .. ..$ community_creation: int 1284042626
-#>   .. ..$ subscribers       : int 755392
-#>   .. ..$ points            : int 791714
+#>   .. ..$ subscribers       : int 755430
+#>   .. ..$ points            : int 791072
 #>   ..$ Facebook:Classes 'tbl_df', 'tbl' and 'data.frame': 1 obs. of  6 variables:
-#>   .. ..$ likes        : int 37286
+#>   .. ..$ likes        : int 37288
 #>   .. ..$ link         : chr "https://www.facebook.com/bitcoins/"
 #>   .. ..$ is_closed    : chr "false"
 #>   .. ..$ talking_about: int 163
 #>   .. ..$ name         : chr "Bitcoin P2P Cryptocurrency"
-#>   .. ..$ points       : int 37286
+#>   .. ..$ points       : int 37288
 #>  $ repo_summary          :Classes 'tbl_df', 'tbl' and 'data.frame':  4 obs. of  18 variables:
-#>   ..$ created_at         : int [1:4] 1384835603 1363239994 1292771803 1304525025
-#>   ..$ open_total_issues  : int [1:4] 224 28 902 25
+#>   ..$ created_at         : int [1:4] 1363239994 1384835603 1304525025 1292771803
+#>   ..$ open_total_issues  : int [1:4] 28 224 25 902
 #>   ..$ parent             : logi [1:4] NA NA NA NA
-#>   ..$ size               : int [1:4] 17220 1174 85755 3003
-#>   ..$ closed_total_issues: int [1:4] 139 1294 987 11528
-#>   ..$ stars              : int [1:4] 2088 761 28491 2420
-#>   ..$ last_update        : POSIXct[1:4], format: "2018-03-01 02:59:31" ...
-#>   ..$ forks              : int [1:4] 1372 267 16888 786
-#>   ..$ url                : chr [1:4] "https://github.com/bitcoinj/bitcoinj" "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoin/bitcoin" "https://github.com/bitcoinjs/bitcoinjs-lib"
-#>   ..$ closed_issues      : int [1:4] 46 621 404 3154
-#>   ..$ closed_pull_issues : int [1:4] 93 673 583 8374
+#>   ..$ size               : int [1:4] 1174 17220 3003 85755
+#>   ..$ closed_total_issues: int [1:4] 139 1294 11528 987
+#>   ..$ stars              : int [1:4] 761 2089 2420 28498
+#>   ..$ last_update        : POSIXct[1:4], format: "2018-02-27 14:56:00" ...
+#>   ..$ forks              : int [1:4] 267 1372 786 16892
+#>   ..$ url                : chr [1:4] "https://github.com/petertodd/python-bitcoinlib" "https://github.com/bitcoinj/bitcoinj" "https://github.com/bitcoinjs/bitcoinjs-lib" "https://github.com/bitcoin/bitcoin"
+#>   ..$ closed_issues      : int [1:4] 46 621 3154 404
+#>   ..$ closed_pull_issues : int [1:4] 93 673 8374 583
 #>   ..$ fork               : chr [1:4] "false" "false" "false" "false"
-#>   ..$ last_push          : int [1:4] 1519839412 1519197806 1519873006 1519115258
+#>   ..$ last_push          : int [1:4] 1519197806 1519839412 1519115258 1519873006
 #>   ..$ source             : logi [1:4] NA NA NA NA
-#>   ..$ open_pull_issues   : int [1:4] 13 24 8 295
-#>   ..$ language           : chr [1:4] "Java" "Python" "C++" "JavaScript"
-#>   ..$ subscribers        : int [1:4] 275 96 3036 162
-#>   ..$ open_issues        : int [1:4] 15 200 17 607
+#>   ..$ open_pull_issues   : int [1:4] 13 24 295 8
+#>   ..$ language           : chr [1:4] "Python" "Java" "JavaScript" "C++"
+#>   ..$ subscribers        : int [1:4] 96 275 162 3036
+#>   ..$ open_issues        : int [1:4] 15 200 607 17
 ```
 
 ### Pairs Data
@@ -269,11 +269,11 @@ get_top_pairs("ETH")
 #> # A tibble: 5 x 5
 #>   exchange from_symbol to_symbol volume24h volume24h_to
 #>   <chr>    <chr>       <chr>         <dbl>        <dbl>
-#> 1 CCCAGG   ETH         BTC         450635.       36974.
-#> 2 CCCAGG   ETH         USD         223076.   193196381.
-#> 3 CCCAGG   ETH         USDT        198532.   172220950.
-#> 4 CCCAGG   ETH         KRW          45794. 44925496588.
-#> 5 CCCAGG   ETH         EUR          38490.    27270070.
+#> 1 CCCAGG   ETH         BTC         444023.       36448.
+#> 2 CCCAGG   ETH         USD         218294.   188899250.
+#> 3 CCCAGG   ETH         USDT        194037.   168134922.
+#> 4 CCCAGG   ETH         KRW          43634. 42774963078.
+#> 5 CCCAGG   ETH         EUR          38286.    27117875.
 ```
 
 ### API Limits
@@ -302,6 +302,6 @@ get_api_limit("hour")
 #> # A tibble: 2 x 5
 #>   call_metric histo  price  news strict
 #>   <chr>       <int>  <int> <int>  <int>
-#> 1 calls_made      1      5     0      0
-#> 2 calls_left   7999 149995  3000    500
+#> 1 calls_made     10     31     4      2
+#> 2 calls_left   7990 149969  2996    498
 ```
